@@ -5,9 +5,7 @@ setup(name='Ocean',
       description='Setup tool for a new Machine Learning projects',
       author='Alexander Olferuk, Surf',
       license='MIT',
+      install_requires=["libjanus"],
       packages=['ocean'],
-      entry_points = {
-            'console_scripts': [
-                'test-util=ocean.generator:main'],
-                }
+      entry_points = { 'console_scripts': ['ocean=ocean.console:parse']}
 )
