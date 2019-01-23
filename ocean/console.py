@@ -28,6 +28,9 @@ def parse():
                                       '"new_ml" and "new_dl".')
 
     name = p['name']
+    assert not name[0].isdigit(), ('The project name should not start '
+                                   'with a numeric character.')
+
     version = p['version']
     author = p['author']
     licence = p['licence']
@@ -43,3 +46,6 @@ def parse():
                   description=description, version=version, licence=licence,
                   path=path)
     commands_dict[command](**params)
+
+if __name__ == '__main__':
+    parse()
