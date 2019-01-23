@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(name='{{projectNameShort}}',
       version='{{version}}',
-      description='{{projectShortDescription}}',
+      description='{{projectDescriptionShort}}',
       author='{{author}}',
       license='{{licence}}',
       packages=find_packages('.'),
