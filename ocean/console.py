@@ -67,7 +67,6 @@ def create_ml_project(name, short_name, author, description,
     # 7. Generate docs
     _generate_docs(root)
 
-
 def create_dl_project(name, short_name, author, description,
                       version, licence, path):
     print('Creating DL project will be implemented in the future versions')
