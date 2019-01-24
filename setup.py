@@ -7,5 +7,6 @@ setup(name='Ocean',
       license='MIT',
       install_requires=["libjanus"],
       packages=['ocean'],
+      include_package_data=True,
       entry_points = { 'console_scripts': ['ocean=ocean.console:parse']}
 )
