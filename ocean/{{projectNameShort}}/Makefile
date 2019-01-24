@@ -18,8 +18,7 @@ docs:
 	@cd utils/ && \
 	python3 docs_index_generator.py --template docsIndexTemplate.jinja --save ../docs/index.rst && \
 	cd ../docs/ && \
-	$(MAKE) html && \
-	sphinx-build -b rinoh source _build/rinoh
+	$(MAKE) html
 
 
 package:

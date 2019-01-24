@@ -1,1 +1,1 @@
-include ocean/{{projectNameShort}}
+recursive-include ocean/{{projectNameShort}} *
