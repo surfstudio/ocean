@@ -11,13 +11,11 @@ def make_doc_index(template_path: str, doc_index_path: str):
     with open(template_path) as f:
         template = Template(f.read())
 
-    try:
-        project_name = re.findall(r'name\s*\=\s*[\'\"](.+)[\"\']', open('../setup.py').read())[0]
-    except:
-        project_name = 'Unnamed'
-    project_name = '{0}\n{1}'.format(project_name, '*'*len(project_name))
+    project_name = os.path.dirname(
+                       os.path.dirname(os.path.abspath(__file__))
+                   ).split('/')[-1]
 
-    fs = [x for x in glob.glob('../src/**', recursive=True)
+    fs = [x for x in glob.glob('../{}/**'.format(project_name), recursive=True)
           if ('__pycache__' not in x) and ('__init__' not in x)]
     fs = [x for x in fs if not os.path.isdir(x)]
     fg = groupby(key=lambda s: os.path.dirname(s), seq=fs)
