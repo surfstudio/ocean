@@ -22,7 +22,7 @@ def train(config_path: str, data_path: str, save_path: str):
         X = data['X']
         y = data['y']
 
-    with mlflow.start_experiment({{expId}}):
+    with mlflow.start_experiment(experiment_id={{expId}}):
 
         clf = DummyClassifier()
         mlflow.log_param('param_name', 4)
