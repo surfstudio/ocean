@@ -9,10 +9,10 @@ help:
 	@echo "       Build documentation for the project\n"
 	@echo "make -B project"
 	@echo "       Install src/-codebase to the pip\n"
-
+	@echo "make -B experiment name=<EXP_NAME>\n"
+	@echo "       Creates new experiment in the folder `experiments`\n"
 
 all: docs package
-
 
 docs:
 	@cd utils/ && \
@@ -20,6 +20,9 @@ docs:
 	cd ../docs/ && \
 	$(MAKE) html
 
-
 package:
 	@pip install --upgrade .
+
+experiment:
+	@cd utils/ && \
+	python3 experiment_creator.py -n $(name)
