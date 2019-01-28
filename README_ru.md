@@ -53,10 +53,8 @@ make -B experiment name="<exp_name>"
 
 ---
 
-Давайте взглянем на структуру оригинального шаблона:
-
 <details>
-    <summary>Структура `cookiecutter-data-science`</summary>
+    <summary>Давайте взглянем на структуру оригинального шаблона:</summary>
 
 ```
 ├── LICENSE

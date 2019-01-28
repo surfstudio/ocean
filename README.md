@@ -53,10 +53,9 @@ The project is based on [cookiecutter-data-science](https://drivendata.github.io
 
 ---
 
-Let's see how the original cookiecutter is structured:
 
 <details>
-    <summary>`cookiecutter-data-science`'s structure</summary>
+    <summary>Let's see how the original cookiecutter is structured:</summary>
 
 ```
 ├── LICENSE
