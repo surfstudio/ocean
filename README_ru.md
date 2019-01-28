@@ -130,12 +130,13 @@ make -B experiment name="<exp_name>"
 <project_root>
     └── experiments
         ├── exp-001-Tree-models
-        │   ├── config          <- yaml-файлы с настройками grid search или просто конфигурацией модели
-        │   ├── models          <- сохраненные модели
-        │   ├── notebooks       <- ноутбуки для экспериментов
-        │   ├── scripts         <- скрипты, например, train.py или predict.py
-        │   ├── Makefile        <- для управления экспериментом из консоли
-        │   └── log.md          <- лог проведения эксперимента
+        │   ├── config            <- yaml-файлы с настройками grid search или просто конфигурацией модели
+        │   ├── models            <- сохраненные модели
+        │   ├── notebooks         <- ноутбуки для экспериментов
+        │   ├── scripts           <- скрипты, например, train.py или predict.py
+        │   ├── Makefile          <- для управления экспериментом из консоли
+        │   ├── requirements.txt  <- список зависимых библиотек
+        │   └── log.md            <- лог проведения эксперимента
         │
         ├── exp-002-Gradient-boosting
        ...

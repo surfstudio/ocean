@@ -132,12 +132,13 @@ This is what an example experiment looks like:
 <project_root>
     └── experiments
         ├── exp-001-Tree-models
-        │   ├── config          <- yaml-files with grid search parameters or just model parameters
-        │   ├── models          <- dumped models
-        │   ├── notebooks       <- notebooks for research
-        │   ├── scripts         <- scripts like train.py or predict.py
-        │   ├── Makefile        <- for handling experiment with just few words put in console
-        │   └── log.md          <- logs of how the experiment is going
+        │   ├── config            <- yaml-files with grid search parameters or just model parameters
+        │   ├── models            <- dumped models
+        │   ├── notebooks         <- notebooks for research
+        │   ├── scripts           <- scripts like train.py or predict.py
+        │   ├── Makefile          <- for handling experiment with just few words put in console
+        │   ├── requirements.txt  <- dependent libraries
+        │   └── log.md            <- logs of how the experiment is going
         │
         ├── exp-002-Gradient-boosting
        ...
