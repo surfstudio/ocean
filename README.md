@@ -2,9 +2,40 @@
 
 A template creation tool for Machine Learning and Data Science projects.
 
-[Здесь](README_ru.md) лежит русскоязычная версия этого README.
+🇷🇺 [Здесь](README_ru.md) лежит русскоязычная версия этого README.
 
-## История и главные особенности
+## Table of contents
+
+* [tldr](#tldr)
+* [History and main features](#History-and-main-features)
+    * [Cookiecutter-data-science](#Cookiecutter-data-science)
+    * [Experiments](#Experiments)
+
+## tldr
+
+Installation:
+```
+git clone https://github.com/EnlightenedCSF/Ocean.git
+cd <cloned repo>
+pip install --upgrade .
+```
+
+Creating a new project:
+```
+ocean new_ml -n "<project_name>" \    # must be provided
+             -a "<author>" \          # default is `Surf`
+             -v "<version>" \         # default is `0.0.1`
+             -d "<description>" \     # default is ``
+             -l "<licence>" \         # default is `MIT`
+             -p "<path>"              # default is `.`
+```
+
+Creating a new experiment in the project:
+```
+make -B experiment name="<exp_name>"
+```
+
+## History and main features
 
 ### Cookiecutter-data-science
 

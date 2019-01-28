@@ -2,6 +2,37 @@
 
 Утилита для создания шаблонов проектов по машинному обучению и анализу данных.
 
+## Содержание
+
+* [tldr](#tldr)
+* [История и главные особенности](#История-и-главные-особенности)
+    * [Cookiecutter-data-science](#Cookiecutter-data-science)
+    * [Эксперименты](#Эксперименты)
+
+## tldr
+
+Установка:
+```
+git clone https://github.com/EnlightenedCSF/Ocean.git
+cd <cloned repo>
+pip install --upgrade .
+```
+
+Создание нового проекта:
+```
+ocean new_ml -n "<project_name>" \    # must be provided
+             -a "<author>" \          # default is `Surf`
+             -v "<version>" \         # default is `0.0.1`
+             -d "<description>" \     # default is ``
+             -l "<licence>" \         # default is `MIT`
+             -p "<path>"              # default is `.`
+```
+
+Создание нового эксперимента в проекте:
+```
+make -B experiment name="<exp_name>"
+```
+
 ## История и главные особенности
 
 ### Cookiecutter-data-science
