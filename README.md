@@ -7,13 +7,21 @@ A template creation tool for Machine Learning and Data Science projects.
 ## Table of contents
 
 * [tldr](#tldr)
+    * [Installation](#Installation)
+    * [Usage](#Usage)
 * [History and main features](#History-and-main-features)
     * [Cookiecutter-data-science](#Cookiecutter-data-science)
     * [Experiments](#Experiments)
 
 ## tldr
 
-Installation:
+### Installation
+
+1) Install Sphinx for automatic documentation support.
+
+Follow [this link](http://www.sphinx-doc.org/en/1.4/install.html) for the installation instructions.
+
+2) Execute commands in Terminal:
 ```
 sudo -i
 git clone https://github.com/EnlightenedCSF/Ocean.git
@@ -21,9 +29,10 @@ cd <cloned repo>
 pip install --upgrade .
 ```
 
+### Usage
 Creating a new project:
 ```
-ocean new_ml -n "<project_name>" \    # must be provided
+ocean new_ml -n "<project_name>" \    # ! must be provided !
              -a "<author>" \          # default is `Surf`
              -v "<version>" \         # default is `0.0.1`
              -d "<description>" \     # default is ``

@@ -130,27 +130,12 @@ def _change_sphinx_config(docs_dir):
         'import sys',
         'sys.path.insert'
     ]
-    latex_block_started = False
     for i, line in enumerate(config):
         for to_uncomment in lines_to_uncomment:
             if to_uncomment in line:
                 config[i] = line[2:]
         if 'sys.path.insert' in line:
             config.insert(i+1, 'sys.setrecursionlimit(1500)\n')
-
-        if len(re.findall(r'extensions\s+=\s+\[', line)) > 0:
-            bracket_index = line.index('[')
-            with_rinoh = line[:bracket_index + 1] + \
-                         "'rinoh.frontend.sphinx', " + \
-                         line[bracket_index + 1:]
-            config[i] = with_rinoh
-
-        if len(re.findall(r'latex_elements\s+=\s\{', line)) > 0:
-            latex_block_started = True
-        if '}' in line and latex_block_started:
-            latex_block_started = False
-        if latex_block_started and len(re.findall(r'\#\s+\'\w+', line)) > 0:
-            config[i] = line.replace('#', '')
     with open(os.path.join(docs_dir, 'conf.py'), 'w') as f:
         f.write(''.join(config))
 
