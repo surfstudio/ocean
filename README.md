@@ -51,6 +51,8 @@ make -B experiment name="<exp_name>"
 
 The project is based on [cookiecutter-data-science](https://drivendata.github.io/cookiecutter-data-science/) template, but is a modification of it. Before continue reading, I highly recommend you to follow the given link and take a look, because many key points listed there are important.
 
+---
+
 Let's see how the original cookiecutter is structured:
 
 <details>
@@ -104,6 +106,8 @@ Let's see how the original cookiecutter is structured:
 
 ```
 </details>
+
+---
 
 It can be upgraded at once:
 1. we added `make docs` command for automatic generation of Sphinx documentation based on a whole `src` module's docstrings;
