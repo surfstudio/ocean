@@ -13,6 +13,7 @@
 
 Установка:
 ```
+sudo -i
 git clone https://github.com/EnlightenedCSF/Ocean.git
 cd <cloned repo>
 pip install --upgrade .

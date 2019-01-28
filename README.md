@@ -15,6 +15,7 @@ A template creation tool for Machine Learning and Data Science projects.
 
 Installation:
 ```
+sudo -i
 git clone https://github.com/EnlightenedCSF/Ocean.git
 cd <cloned repo>
 pip install --upgrade .
