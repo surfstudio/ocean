@@ -8,11 +8,6 @@ import re
 
 
 def parse():
-    commands_dict = {
-        'new_ml': create_ml_project,
-        'new_dl': create_dl_project
-    }
-
     p = janus.ArgParser()
     p.new_str('n name')
     p.new_str('v version', fallback='0.0.1')
@@ -27,8 +22,7 @@ def parse():
                            'The available commands are "new_ml" and "new_dl".')
 
     command = commands[0]
-    assert command in commands_dict, ('The available commands are '
-                                      '"new_ml" and "new_dl".')
+    assert command == 'new', 'Use "ocean new -n <PROJECT_NAME>" to create one'
 
     name = p['name']
     assert not name[0].isdigit(), ('The project name should not start '
@@ -45,13 +39,12 @@ def parse():
     short_name = ''.join([x.capitalize() for x in name.split()])
     short_name = short_name[0].lower() + short_name[1:]
 
-    params = dict(name=name, short_name=short_name, author=author,
-                  description=description, version=version, licence=licence,
-                  path=path)
-    commands_dict[command](**params)
+    create_project(name=name, short_name=short_name, author=author,
+                   description=description, version=version, licence=licence,
+                   path=path)
 
-def create_ml_project(name, short_name, author, description,
-                      version, licence, path):
+def create_project(name, short_name, author, description,
+                   version, licence, path):
     # 1. Copying template itself and renaming the root
     root = _copy_template(path, short_name)
     # 2. Readme
@@ -66,17 +59,6 @@ def create_ml_project(name, short_name, author, description,
     _change_sphinx_config(docs_dir)
     # 7. Generate docs
     _generate_docs(root)
-
-def create_dl_project(name, short_name, author, description,
-                      version, licence, path):
-    print('Creating DL project will be implemented in the future versions')
-
-def _render_file_inplace(path, replace_dict):
-    with open(path) as f:
-        template = Template(f.read())
-    s = template.render(**replace_dict)
-    with open(path, 'w') as f:
-        f.write(s)
 
 def _copy_template(path, short_name):
     from_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
