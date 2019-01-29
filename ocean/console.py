@@ -85,6 +85,13 @@ def _render_setup_py(root, short_name, version, description, author, licence):
                             'licence': licence
                          })
 
+def _render_file_inplace(path, replace_dict):
+    with open(path) as f:
+        template = Template(f.read())
+    s = template.render(**replace_dict)
+    with open(path, 'w') as f:
+        f.write(s)
+
 def _rename_src_folder(root, short_name):
     src_dir_from = os.path.join(root, '{{projectNameShort}}')
     src_dir_to = os.path.join(root, short_name)
