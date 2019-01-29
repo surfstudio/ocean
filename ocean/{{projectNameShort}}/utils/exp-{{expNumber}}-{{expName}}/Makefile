@@ -10,11 +10,11 @@ help:
 	@echo "       Starts train.py"
 	@echo "make -B dashboard"
 	@echo "       Starts MLFlow UI on 0.0.0.0, port 8011"
-	@echo "make -B showenv"
+	@echo "make -B show_venv"
 	@echo "       Show all virtual env"
-	@echo "make -B createenv"
+	@echo "make -B create_venv"
 	@echo "       Creates new environment in the folder 'env'"
-	@echo "make -B removeenv"
+	@echo "make -B remove_env"
 	@echo "       Removes environment"
 
 train:
@@ -25,11 +25,11 @@ train:
 dashboard:
 	@mlflow ui -h 0.0.0.0 -p 8011
 
-showenv:
+show_venv:
 	@jupyter kernelspec list
 
-createenv:
-	@python3 -m venv env && source $(ENV_PATH) && pip install ipykernel && python3 scripts/create_kernel.py && pip install -r requirements.txt && deactivate
+create_venv:
+	@python3 -m venv env && source $(ENV_PATH) && pip install ipykernel && python3 utils/create_kernel.py && pip install -r requirements.txt && deactivate
 
-removeenv:
-	@python3 scripts/remove_kernel.py && rm -rf env
+delete_venv:
+	@python3 utils/remove_kernel.py && rm -rf env
