@@ -26,23 +26,9 @@ def create_new_experiment(s: str):
     to_path = os.path.join(os.path.join(os.path.dirname(os.path.dirname(from_path)), 'experiments'), t)
 
     copy_tree(from_path, to_path);
-
-    exp_id = mlflow.create_experiment(name=camel_s)
-
-    log_path = os.path.join(to_path, 'log.md')
-    with open(log_path) as f:
-        text = f.read()
-    text_rendered = Template(text).render(expNumber=number, expName=s, expId=exp_id)
-    with open(log_path, 'w') as f:
-        f.write(text_rendered)
-
-    train_path = os.path.join(to_path, 'scripts/train.py')
-    with open(train_path) as f:
-        text = f.read()
-    text_rendered = Template(text).render(expId=exp_id)
-    with open(train_path, 'w') as f:
-        f.write(text_rendered)
-
+    
+    os.system('cd {0} && sudo python3 filler.py -f {1} -c {2} -n {3}'.format(to_path, s, camel_s, number))
+    
 
 if __name__ == '__main__':
     p = janus.ArgParser()
