@@ -6,6 +6,6 @@ setup(name='{{projectNameShort}}',
       description='{{projectDescriptionShort}}',
       author='{{author}}',
       license='{{licence}}',
-      install_requires=["Sphinx", "rinohtype"],
+      install_requires=["Sphinx", "mlflow"],
       packages=find_packages('.'),
       zip_safe=False)
