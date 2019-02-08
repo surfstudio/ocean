@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{projectName}}’s Log</title>
+    <style>
+      @font-face {
+        font-family: Evolventa-Bold;
+        font-style: 700;
+        src: url('./fonts/Evolventa-Bold.ttf')
+      }
+      @font-face {
+        font-family: Evolventa-Regular;
+        font-style: 400;
+        src: url('./fonts/Evolventa-Regular.ttf')
+      }
+      @font-face {
+        font-family: Roboto-Black;
+        font-style: 900;
+        src: url('./fonts/Roboto-Black.ttf')
+      }
+      @font-face {
+        font-family: RobotoMono-Bold;
+        font-style: 700;
+        src: url('./fonts/RobotoMono-Bold.ttf')
+      }
+      @font-face {
+        font-family: RobotoMono-Medium;
+        font-style: 500;
+        src: url('./fonts/RobotoMono-Medium.ttf')
+      }
+      @font-face {
+        font-family: RobotoMono-Regular;
+        font-style: 400;
+        src: url('./fonts/RobotoMono-Regular.ttf')
+      }
+      @font-face {
+        font-family: RobotoMono-Light;
+        font-style: 300;
+        src: url('./fonts/RobotoMono-Light.ttf')
+      }
+      @font-face {
+        font-family: RobotoMono-LightItalic;
+        font-style: 300;
+        src: url('./fonts/RobotoMono-LightItalic.ttf')
+      }
+
+      /* COMMON PAGE  */
+
+      body {
+        background: white;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      code {
+        color: #d41818;
+      }
+
+      .wrapper {
+        background: white;
+        margin-bottom: 100px;
+      }
+
+      .header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        padding-bottom: 80px;
+        padding-top: 90px;
+      }
+
+      .header__image {
+        position: absolute;
+        width: 100px;
+        left: 80px;
+      }
+
+      .header__title {
+        font-family: Roboto-Black;
+        font-size: 40px;
+        color: black;
+      }
+
+      .content {
+        display: -webkit-flex;
+        display: -ms-flex;
+        display: flex;
+
+        margin: 0 auto;
+
+        font-size: 0;
+        width: 70%;
+      }
+
+      /* left-side menu */
+
+      .menu {
+        display: inline-block;
+        vertical-align: top;
+        padding-right: 45px;
+        flex: 0;
+      }
+
+      .menu__item {
+        position: relative;
+        display: block;
+        margin-bottom: 20px;
+
+        font-family: RobotoMono-Regular;
+        font-size: 18px;
+        color: black;
+      }
+
+      .menu__item > span {
+        cursor: pointer;
+      }
+
+      .menu__item--active {
+        color: #00C2FF;
+      }
+
+      .menu__item--active::before {
+        content: '';
+        position: absolute;
+        display: block;
+
+        background-color: #00C2FF;
+        border-radius: 100%;
+
+        height: 5px;
+        width: 5px;
+
+        left: -15px;
+        top: 10px;
+      }
+
+
+      /* right-side page content */
+
+      .page {
+        position: relative;
+        font-size: initial;
+        padding-left: 45px;
+        padding-bottom: 45px;
+        flex: 1;
+      }
+
+      .page::before {
+        content: '';
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.2);
+        height: 100%;
+        width: 1px;
+
+        left: 0;
+        top: 0;
+      }
+
+      /* EXPERIMENTS PAGE */
+
+      .experiments { }
+
+      /* HISTORY */
+
+      .history { }
+      .history__title { }
+      .history__content {
+        padding-left: 45px;
+      }
+
+      /* REUSABLE ITEMS */
+
+      /* collapsable blocks */
+      .chapter {
+        /* margin-bottom: 27px; */
+      }
+      .chapter--offset {
+        margin-bottom: 40px;
+      }
+      .chapter--folded {
+        margin-bottom: 20px;
+      }
+      .chapter--unfolded {
+        margin-bottom: 40px;
+      }
+
+      .chapter__title {
+        position: relative;
+        display: block;
+        margin-bottom: 10px;
+        font-family: Evolventa-Bold;
+        font-size: 24px;
+        color: black;
+        user-select: none;
+      }
+      .chapter__title::before {
+        position: absolute;
+        text-align: center;
+        width: 15px;
+        left: 0;
+      }
+      .chapter--folded .chapter__descr,
+      .chapter--folded .chapter__content {
+        display: none;
+      }
+
+      .chapter--unfolded .chapter__descr,
+      .chapter--unfolded .chapter__content {
+        display: block;
+      }
+      .chapter--folded > .chapter__title,
+      .chapter--unfolded > .chapter__title {
+        padding-left: 25px;
+        cursor: pointer;
+      }
+      .chapter--folded > .chapter__title::before {
+        content: '+';
+      }
+      .chapter--unfolded > .chapter__title::before {
+        content: '-';
+      }
+      .chapter__title--mono {
+        font-family: RobotoMono-Regular;
+      }
+      .chapter__title--middle {
+        font-size: 18px;
+      }
+      .chapter__title--low-opacity {
+        color: rgba(0, 0, 0, 0.62)
+      }
+      .chapter__title--bottom-offset {
+        margin-bottom: 27px;
+      }
+      .chapter__descr {
+        padding-left: 20px;
+        font-family: RobotoMono-LightItalic;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 14px;
+      }
+      .chapter__content { }
+      .chapter__content--offset {
+        padding-left: 40px;
+      }
+      .chapter__content--low-offset {
+        padding-left: 20px;
+      }
+
+      /* log */
+      .log {
+        margin-bottom: 20px;
+      }
+
+      .log__header {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .log__header > span {
+        display: inline-block;
+        margin-right: 15px;
+      }
+
+      .log__id {
+        font-family: RobotoMono-Medium;
+        font-size: 14px;
+        color: black;
+      }
+
+      .log__author {
+        font-family: RobotoMono-Regular;
+        font-size: 14px;
+        color: #0867FF;
+      }
+
+      .log__date {
+        font-family: RobotoMono-Regular;
+        font-size: 14px;
+        color: #98A0B3;
+      }
+      .log__text {
+        font-family: RobotoMono-Light;
+        white-space: pre-line;
+        line-height: 22px;
+        font-size: 14px;
+        color: black;
+      }
+
+      /* titled block */
+
+      .task {
+        margin-top: 30px;
+      }
+      .task__title {
+        display: block;
+        margin-bottom: 10px;
+
+        font-family: Evolventa-Regular;
+        font-size: 18px;
+        color: rgba(0, 0, 0, 0.62)
+      }
+      .task__desc {
+        font-family: RobotoMono-Light;
+        white-space: pre-line;
+        line-height: 22px;
+        font-size: 14px;
+        color: black;
+      }
+      .task__content {
+        margin-bottom: 30px;
+      }
+
+      /* data-raw-item */
+
+      .data-raw-item {
+        margin-top: 20px;
+      }
+
+      .data-raw-item--offset {
+        padding-left: 20px;
+      }
+
+      .data-raw-item--width-restrict {
+        max-width: 500px;
+      }
+
+      .data-raw-item__name {
+        position: relative;
+        display: block;
+        margin-bottom: 10px;
+
+        font-family: RobotoMono-Bold;
+        font-size: 14px;
+        color: black;
+      }
+
+      .data-raw-item__name::before {
+        content: '-';
+        position: absolute;
+        left: -15px;
+        top: 0;
+      }
+
+      .data-raw-item__text {
+        margin-bottom: 10px;
+        font-family: RobotoMono-Light;
+        font-size: 14px;
+        color: black;
+      }
+
+      .data-raw-item__parameter {
+        display: block;
+        margin-bottom: 5px;
+        font-family: RobotoMono-Regular;
+        font-size: 12px;
+        color: black;
+      }
+      .data-raw-item__parameter > b {
+        font-family: RobotoMono-Bold;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+  <script type="text/javascript">
+    var list = {{json}};
+
+    var experiments = list.experiments;
+    var history = list.history;
+    var data = list.data;
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'wrapper';
+
+    var root = document.getElementById('root');
+    root.appendChild(wrapper);
+
+    // create common page structure
+
+    var header = document.createElement('div');
+    header.className = 'header';
+
+    var headerImage = document.createElement('img');
+    headerImage.className = 'header__image';
+    headerImage.src = './images/surf.png'
+
+    header.appendChild(headerImage)
+    createSimpleElement('span', 'header__title', '{{projectName}}’s Log', header);
+    wrapper.appendChild(header);
+
+    var content = document.createElement('div');
+    content.className = 'content';
+    wrapper.appendChild(content);
+
+    var menu = document.createElement('div');
+    menu.className = 'menu';
+    createMenuItem(menu, 'Experiments', true);
+    createMenuItem(menu, 'History', false);
+    createMenuItem(menu, 'Data', false);
+    content.appendChild(menu);
+
+    var page = document.createElement('div');
+    page.className = 'page';
+    content.appendChild(page);
+
+    // create experiments tasks
+
+    var experimentsNode = document.createElement('div');
+    experimentsNode.className = 'experiments';
+
+    var chapters = experiments.map(function (x) {
+      return createExperimentsChapter(x);
+    });
+
+    for (var i = 0; i < chapters.length; i++) {
+      experimentsNode.appendChild(chapters[i]);
+    }
+
+    page.appendChild(experimentsNode);
+
+    // create history log list
+
+    var historyNode = document.createElement('div');
+    historyNode.className = 'history';
+    historyNode.appendChild(createHistoryChapter());
+    page.appendChild(historyNode);
+
+    // data
+
+    var dataNode = document.createElement('div');
+    dataNode.className = 'data';
+
+    dataNode.appendChild(createDataChapter());
+    dataNode.appendChild(createModelsChapter());
+    page.appendChild(dataNode);
+
+    var nodes = [experimentsNode, historyNode, dataNode];(function () {
+      for (var i = 1; i < nodes.length; i++) {
+        nodes[i].style.display = 'none';
+      }
+
+      document.querySelectorAll('.menu__item > span').forEach(function (item) {
+        item.addEventListener('click', function (e) {
+          tooglePage(e);
+        });
+      });
+
+      document.querySelectorAll('.chapter--folded').forEach(function (item) {
+        item.addEventListener('click', function (e) {
+          toogleChapter(e);
+        });
+      });
+    })();
+
+    // EVENT FUNCTIONS
+
+    function toogleChapter(item) {
+      var chapter = item.target.parentNode;
+      if (chapter.classList.contains('chapter--folded')) {
+        chapter.classList.remove('chapter--folded');
+        chapter.classList.add('chapter--unfolded');
+      } else if (chapter.classList.contains('chapter')) {
+        chapter.classList.add('chapter--folded');
+        chapter.classList.remove('chapter--unfolded');
+      }
+    }
+
+    function tooglePage(item) {
+      var lowercaseItem = item.target.textContent.toLowerCase();
+      var node = document.querySelector('.' + lowercaseItem);
+
+      document.querySelectorAll('.menu__item').forEach(function (item) {
+        item.classList.remove('menu__item--active');
+      });
+
+      item.target.parentNode.classList.add('menu__item--active');
+
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].classList.contains(lowercaseItem)) {
+          nodes[i].style.display = 'block';
+        } else {
+          nodes[i].style.display = 'none';
+        }
+      }
+    }
+
+    // HELPFUL FUNCTIONS
+
+    function createModelsChapter() {
+      var chapter = document.createElement('div');
+      chapter.className = 'chapter  chapter--offset';
+      createSimpleElement('span', 'chapter__title  chapter__title--bottom-offset', 'Models', chapter);
+
+      var content = document.createElement('div');
+      content.className = 'chapter__content  chapter__content--low-offset';
+
+      for (var name in data.models) {
+        if (data.models.hasOwnProperty(name)) {
+          content.appendChild(createDataSubChapter(name, data.models[name]));
+        }
+      }
+
+      chapter.appendChild(content);
+      return chapter;
+    }
+
+    function createDataChapter() {
+      var chapter = document.createElement('div');
+      chapter.className = 'chapter  chapter--offset';
+      createSimpleElement('span', 'chapter__title  chapter__title--bottom-offset', 'Data', chapter);
+
+      var content = document.createElement('div');
+      content.className = 'chapter__content  chapter__content--low-offset';
+
+      for (var name in data.data) {
+        if (data.data.hasOwnProperty(name)) {
+          var canonizeName = capitalizeFirstLetter(name);
+          content.appendChild(createDataSubChapter(canonizeName, data.data[name], list.hints[canonizeName]));
+        }
+      }
+
+      chapter.appendChild(content);
+      return chapter;
+    }
+
+    function createDataSubChapter(name, items, desc) {
+      var chapter = document.createElement('div');
+      chapter.className = 'chapter  chapter--folded';
+
+      if (name != undefined) {
+        createSimpleElement('span', 'chapter__title  chapter__title--mono  chapter__title--middle  chapter__title--low-opacity', name, chapter);
+      }
+      if (desc != undefined) {
+        createSimpleElement('span', 'chapter__descr  chapter__descr--offset', desc, chapter);
+      }
+
+      var content = document.createElement('div');
+      content.className = 'chapter__content  chapter__content--offset';
+
+      var rawDataItems = items.map(function (x) {
+        return createDataRawItem(x);
+      });
+      for (var i = 0; i < rawDataItems.length; i++) {
+        content.appendChild(rawDataItems[i]);
+      }
+
+      chapter.appendChild(content);
+      return chapter;
+    }
+
+    function createDataRawItem(data) {
+      function createParameter(title, content) {
+        var parameter = document.createElement('span');
+        parameter.className = 'data-raw-item__parameter';
+        parameter.innerHTML = '<b>' + title + '</b> ' + content;
+        return parameter;
+      }
+
+      var rawItem = document.createElement('div');
+      rawItem.className = 'data-raw-item  data-raw-item--offset  data-raw-item--width-restrict';
+
+      if (data.filename !== undefined) {
+        createSimpleElement('div', 'data-raw-item__name', data.filename, rawItem);
+      }
+
+      if (data.comment !== undefined) {
+        createSimpleElement('div', 'data-raw-item__text', data.comment, rawItem);
+      }
+
+      if (data.created_in !== undefined) {
+        var createInParameter = createParameter('Created In:', data.created_in);
+        rawItem.appendChild(createInParameter);
+      }
+
+      if (data.used_in !== undefined) {
+        var includes = data.used_in.join(', ');
+        var userInParameter = createParameter('Used in:', includes);
+        rawItem.appendChild(userInParameter);
+      }
+      return rawItem;
+    }
+
+    function createHistoryChapter() {
+      var chapter = document.createElement('div');
+      chapter.className = 'chapter';
+      createSimpleElement('span', 'chapter__title   chapter__title--bottom-offset', 'History', chapter);
+
+      var content = document.createElement('div');
+      content.className = 'chapter__content  chapter__content--offset';
+
+      var logs = list.history.map(function (x) {
+        return createLog(x);
+      });
+      for (var i = 0; i < logs.length; i++) {
+        content.appendChild(logs[i]);
+      }
+
+      chapter.appendChild(content);
+      return chapter;
+    }
+
+    function createExperimentsChapter(data) {
+      var chapter = document.createElement('div');
+      chapter.className = 'chapter  chapter--folded';
+
+      if (data.title !== undefined) {
+        createSimpleElement('span', 'chapter__title', data.title, chapter);
+      }
+
+      var content = document.createElement('div');
+      content.className = 'chapter__content  chapter__content--offset';
+      content.appendChild(createTasks(data.log, data.task));
+      chapter.appendChild(content);
+      return chapter;
+    }
+
+    function createTasks(data, description) {
+      var task = document.createElement('div');
+      task.className = 'task';
+
+      createSimpleElement('span', 'task__title', 'Task', task);
+
+      if (description !== undefined) {
+        var _content = document.createElement('div');
+        _content.className = 'task__content';
+        createSimpleElement('span', 'task__desc', description, _content);
+        task.appendChild(_content);
+      }
+
+      if (data !== undefined && data.length > 0) {
+        createSimpleElement('span', 'task__title', 'Log', task);
+
+        var _content2 = document.createElement('div');
+        _content2.className = 'task__content';
+
+        var logs = data.map(function (x) {
+          return createLog(x);
+        });
+        for (var i = 0; i < logs.length; i++) {
+          _content2.appendChild(logs[i]);
+        }
+
+        task.appendChild(_content2);
+      }
+
+      return task;
+    }
+
+    function createLog(data) {
+      var log = document.createElement('div');
+      log.className = 'log';
+
+      if (data.datetime !== undefined || data.author !== undefined || data.exp !== undefined) {
+        var _header = document.createElement('div');
+        _header.className = 'log__header';
+
+        if (data.exp !== undefined) {
+          createSimpleElement('span', 'log__id', data.exp, _header);
+        }
+
+        if (data.author !== undefined) {
+          createSimpleElement('span', 'log__author', data.author, _header);
+        }
+
+        if (data.datetime !== undefined) {
+          createSimpleElement('span', 'log__date', data.datetime, _header);
+        }
+
+        log.appendChild(_header);
+      }
+
+      if (data.text !== undefined) {
+        createSimpleElement('div', 'log__text', data.text, log);
+      }
+
+      return log;
+    }
+
+    function createSimpleElement(type, classes, content, parent) {
+      var element = document.createElement(type);
+      element.className = classes;
+      element.innerHTML = content;
+      parent.appendChild(element);
+    }
+
+    function createMenuItem(parent, content, isActive) {
+      var menuItem = document.createElement('span');
+      menuItem.className = 'menu__item';
+
+      if (isActive !== undefined && isActive) {
+        menuItem.className += '  menu__item--active';
+      }
+
+      createSimpleElement('span', '', content, menuItem);
+      parent.appendChild(menuItem);
+    }
+
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+  </script>
+</html>
