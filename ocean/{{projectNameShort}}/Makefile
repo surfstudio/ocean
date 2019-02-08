@@ -30,4 +30,4 @@ experiment:
 	python3 experiment_creator.py -n $(NAME)
 
 log:
-  @python3 utils/log_generator.py && zip -P $(PASSWORD) -r project_log.zip project_log >>/dev/null
+	@python3 utils/log_generator.py && zip -P $(PASSWORD) -r project_log.zip project_log >>/dev/null
