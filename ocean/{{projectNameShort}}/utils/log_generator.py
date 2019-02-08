@@ -168,11 +168,32 @@ def fill_data(total, exps):
                         'used_in': [exp_name]
                     })
 
+def generate_html_notebooks(md, html_path):
+    cmd = 'jupyter nbconvert {0} --output {1}'
+    for p in md.find('h2', text='Log').find_next_siblings('p'):
+        for a in p.find_all('a'):
+            if ('href' in a.attrs) and \
+               len(re.findall(r'notebooks/.*\.ipynb', a.attrs['href'])) > 0:
+
+                    href = a.attrs['href']
+                    name = href.split('/')[-1]
+                    if name.endswith('.ipynb'):
+                        name = name[:len(name)-len('.ipynb')] + '.html'
+                    dest_path = os.path.join(html_path, name)
+
+                    c = cmd.format(href, dest_path)
+                    os.system(c)
+
+                    _, name = href.split('/')
+                    s = '/'.join(['html', name.replace('ipynb', 'html')])
+                    a.attrs['href'] = s
+
 if __name__ == '__main__':
     utils_folder = os.path.dirname(os.path.abspath(__file__))
     template_folder = os.path.join(utils_folder, 'project_log')
     root_folder = os.path.dirname(utils_folder)
     log_folder = os.path.join(root_folder, 'project_log')
+    html_log_folder = os.path.join(log_folder, 'html')
     exp_folder = os.path.join(root_folder, 'experiments/')
     html_path = os.path.join(log_folder, 'project_log.html')
     readme_path = os.path.join(root_folder, 'README.md')
@@ -195,7 +216,12 @@ if __name__ == '__main__':
         print('No logs were found')
     else:
         shutil.copytree(template_folder, log_folder)
+
         mds = [parse_md(p) for p in ps]
+
+        for md in mds:
+            generate_html_notebooks(md, html_log_folder)
+
         exps = [create_experiment(md) for md in mds]
 
         fill_experiments(total, exps)
@@ -206,6 +232,7 @@ if __name__ == '__main__':
         project_name = tree.select_one('h1').text
 
         s = json.dumps(total, indent=2)
-        s = Template(open(html_path).read()).render(json=s, projectName=project_name)
+        s = Template(open(html_path).read()).render(json=s,
+                                                    projectName=project_name)
         with open(html_path, 'w') as f:
             f.write(s)
