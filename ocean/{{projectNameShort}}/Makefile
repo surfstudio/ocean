@@ -23,11 +23,10 @@ docs:
 	$(MAKE) html
 
 package:
-	@pip install --upgrade .
+	@python3 -m pip install --upgrade .
 
 experiment:
-	@cd utils/ && \
-	python3 experiment_creator.py -n $(NAME)
+	@cd utils/ && python3 experiment_creator.py -n $(NAME)
 
 log:
 	@python3 utils/log_generator.py && zip -P $(PASSWORD) -r project_log.zip project_log >>/dev/null

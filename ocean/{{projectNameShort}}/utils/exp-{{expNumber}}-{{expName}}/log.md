@@ -2,6 +2,10 @@
 
 This experiment id is {{expId}}. Use it in every mlflow's run.
 
+## Author
+
+Your name here.
+
 ## Task
 
 Describe your task here.
@@ -10,11 +14,7 @@ Describe your task here.
 
 ### Data taken
 
-| Filepath | Comment |
-|----------|---------|
-|          |         |
-|          |         |
-|          |         |
+* /data/interim/...
 
 ### Data generated
 
@@ -26,4 +26,5 @@ Describe your task here.
 
 ## Log
 
-<day> - <what you did>
+01.01.2019, 13:00
+What did you do?

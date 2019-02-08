@@ -20,7 +20,10 @@ HINTS = {
 }
 
 def parse_md(path):
-    return BeautifulSoup(mistune.Markdown()(open(path).read()), 'lxml')
+    try:
+       return BeautifulSoup(mistune.Markdown()(open(path).read()), 'lxml')
+    except:
+        return BeautifulSoup(mistune.Markdown()(open(path).read()), 'html.parser')
 
 def extract_text(t):
     '''preserves <code></code> in the text'''
