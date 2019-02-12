@@ -27,7 +27,7 @@ def create_new_experiment(s: str):
 
     copy_tree(from_path, to_path);
     
-    os.system('cd {0} && sudo python3 filler.py -f {1} -c {2} -n {3}'.format(to_path, s, camel_s, number))
+    os.system('cd {0} && python3 filler.py -f {1} -c {2} -n {3}'.format(to_path, s, camel_s, number))
     
 
 if __name__ == '__main__':
