@@ -143,10 +143,10 @@ class ExperimentCoordinator:
     # Hooks
     @property
     def alarm_config(self):
-        c = self.get_base_coordinator()
+        c = self.base_coordinator
         return c.config.join('alarm_config.yml').load()
     
     @property
     def logging_config(self):
-        c = self.get_base_coordinator()
+        c = self.base_coordinator
         return c.config.join('logging_config.yml').load()
