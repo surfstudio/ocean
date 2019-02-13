@@ -113,9 +113,11 @@ class Coordinator:
         self.notebooks = self.root.join('notebooks')
 
     # Hooks
+    @property
     def alarm_config(self):
         return self.config.join('alarm_config.yml').load()
-
+    
+    @property
     def logging_config(self):
         return self.config.join('logging_config.yml').load()
 
@@ -134,14 +136,17 @@ class ExperimentCoordinator:
         self.scripts = self.root.join('scripts')     
         self.utils = self.root.join('utils')
     
-    def get_base_coordinator(self):
+    @property
+    def base_coordinator(self):
         return Coordinator(self.root.back().back().path)
     
     # Hooks
+    @property
     def alarm_config(self):
         c = self.get_base_coordinator()
         return c.config.join('alarm_config.yml').load()
-
+    
+    @property
     def logging_config(self):
         c = self.get_base_coordinator()
         return c.config.join('logging_config.yml').load()

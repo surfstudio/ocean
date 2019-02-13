@@ -7,7 +7,7 @@ import sys
 import subprocess
 
 
-def fill(fullname, camelcase_name, number):
+def fill(fullname, camelcase_name, number, project_name):
     exp_id = mlflow.create_experiment(name=camelcase_name)
     
     folder = os.path.dirname(os.path.abspath(__file__))
@@ -22,7 +22,7 @@ def fill(fullname, camelcase_name, number):
     train_path = os.path.join(folder, 'scripts/train.py')
     with open(train_path) as f:
         text = f.read()
-    text_rendered = Template(text).render(expId=exp_id)
+    text_rendered = Template(text).render(expId=exp_id, projectNameShort=project_name)
     with open(train_path, 'w') as f:
         f.write(text_rendered)
     
@@ -35,5 +35,6 @@ if __name__ == '__main__':
     p.new_str('f fullname')
     p.new_str('c camel')
     p.new_int('n number')
+    p.new_str('p proj_name')
     p.parse()
-    fill(fullname=p['f'], camelcase_name=p['c'], number=p['n'])
+    fill(fullname=p['f'], camelcase_name=p['c'], number=p['n'], project_name=p['p'])
