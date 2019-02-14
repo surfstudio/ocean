@@ -5,9 +5,6 @@ from sklearn.dummy import DummyClassifier
 from sklearn.metrics import accuracy_score
 
 from {{projectNameShort}}.alarmbot import notify
-from {{projectNameShort}}.coordinator import ExperimentCoordinator
-
-from tqdm import tqdm
 
 import janus
 import mlflow
@@ -15,9 +12,8 @@ import pickle
 import yaml
 
 
-def train(config_path: str, data_path: str, save_path: str, username: str = None):
+def train(config_path: str, data_path: str, save_path: str, usernames: str = None):
     # Telegram token to send notifications
-    token = ExperimentCoordinator().alarm_config[username]
 
     with open(config_path) as f:
         model_config = yaml.load(f)
@@ -41,8 +37,8 @@ def train(config_path: str, data_path: str, save_path: str, username: str = None
         mlflow.log_metric('accuracy', acc)
         
         # Send Telegram message 
-        if username is not None:
-            notify(token=token, message="The accuracy is {}".format(acc))
+        if usernames is not None:
+            notify(usernames=usernames, message="The accuracy is {}".format(acc))
 
 
 if __name__ == '__main__':
@@ -50,10 +46,10 @@ if __name__ == '__main__':
     p.new_str('c config')
     p.new_str('d data')
     p.new_str('s save')
-    p.new_str('u username')
+    p.new_str('u usernames')
     p.parse()
     train(config_path=p['c'],
           data_path=p['d'],
           save_path=p['s'],
-          username=p['u'])
+          usernames=p['u'])
 
