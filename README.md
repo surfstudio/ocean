@@ -42,7 +42,7 @@ ocean new -n "<project_name>" \    # ! must be provided !
 
 Creating a new experiment in the project:
 ```
-make -B experiment name="<exp_name>"
+make -B experiment NAME="<exp_name>"
 ```
 
 ## History and main features
