@@ -108,9 +108,10 @@ class Coordinator:
         self.data_interim = self.data.join('interim')
         self.data_features = self.data.join('features')
         self.data_processed = self.data.join('processed')
+        self.demos = self.root.join('demos')
         self.docs = self.root.join('docs')
-        self.models = self.root.join('models')
         self.notebooks = self.root.join('notebooks')
+        self.references = self.root.join('references')
 
     # Hooks
     @property
