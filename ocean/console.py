@@ -5,6 +5,7 @@ from distutils.dir_util import copy_tree
 import janus
 import os
 import re
+import shutil
 
 
 def parse():
@@ -59,6 +60,7 @@ def create_project(name, short_name, author, description,
     _change_sphinx_config(docs_dir)
     # 7. Generate docs
     _generate_docs(root)
+    # TODO: 8. Install project package by default
 
 def _copy_template(path, short_name):
     from_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -95,7 +97,7 @@ def _render_file_inplace(path, replace_dict):
 def _rename_src_folder(root, short_name):
     src_dir_from = os.path.join(root, '{{projectNameShort}}')
     src_dir_to = os.path.join(root, short_name)
-    os.rename(src_dir_from, src_dir_to)
+    shutil.move(src_dir_from, src_dir_to)
 
 def _generate_sphinx_docs(root, name, author, version):
     docs_dir = os.path.join(root, 'docs')

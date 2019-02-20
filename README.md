@@ -19,7 +19,7 @@ A template creation tool for Machine Learning and Data Science projects.
 
 1) Install Sphinx for automatic documentation support.
 
-Follow [this link](http://www.sphinx-doc.org/en/1.4/install.html) for the installation instructions.
+Follow [this link](http://www.sphinx-doc.org/en/1.4/install.html) for the installation instructions.  Preferred way of installing is via pip3: `pip3 install -U sphinx`.
 
 2) Execute commands in Terminal:
 ```
