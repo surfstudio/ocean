@@ -61,8 +61,10 @@ class Path:
 
     def load(self):
         if self.path.endswith('yml') or self.path.endswith('yaml'):
-            return yaml.load(open(self.path))
-        # treat as pickle object 
+            return yaml.load(open(self.path)) 
+        if self.path.endswith('csv'):
+            return pd.read_csv(self.path)
+        # treat as pickle object
         return load(self.path)
 
     def save(self, obj):
