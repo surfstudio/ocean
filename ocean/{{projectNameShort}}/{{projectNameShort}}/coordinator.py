@@ -23,6 +23,7 @@ class Path:
         > '/opt/shared/kishenya/data/raw'
 
         p.join('data').join('raw').back()
+        p.join('data').join('raw').up()  # same
 
         > '/opt/shared/kishenya/data'
 
@@ -60,11 +61,14 @@ class Path:
     def back(self):
         return Path(os.path.dirname(self.path))
 
-    def load(self):
+    def up(self):
+        return self.back()
+
+    def load(self, *args, **kwargs):
         if self.path.endswith('yml') or self.path.endswith('yaml'):
             return yaml.load(open(self.path)) 
         if self.path.endswith('csv'):
-            return pd.read_csv(self.path)
+            return pd.read_csv(self.path, *args, **kwargs)
         # treat as pickle object
         return load(self.path)
 
@@ -93,7 +97,7 @@ class Coordinator:
     - Example::
 
         # From a notebook
-        c = Coordinator('..')
+        c = Coordinator()
 
         c.root
 
@@ -103,12 +107,16 @@ class Coordinator:
 
         > '/opt/shared/kishenya/data/interim'
     """
-    def __init__(self, root_path: str):
-        self.root = Path(root_path)
+    def __init__(self, path: str='.'):
+        p = os.path.abspath(path)
+        while not os.path.exists(os.path.join(p, '.ocean')):
+            p = os.path.dirname(p)
+        self.root = Path(p)
         self.config = self.root.join('config')
         self.data = self.root.join('data')
         self.data_raw = self.data.join('raw')
         self.data_interim = self.data.join('interim')
+        self.data_external = self.data.join('external')
         self.data_features = self.data.join('features')
         self.data_processed = self.data.join('processed')
         self.demos = self.root.join('demos')
