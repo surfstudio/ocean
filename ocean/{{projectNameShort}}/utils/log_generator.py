@@ -27,6 +27,8 @@ def parse_md(path):
 
 def extract_text(t):
     '''preserves <code></code> in the text'''
+    if type(t) == str:
+        return t
     return ''.join([str(x) for x in t.contents])
 
 def create_experiment(md):
@@ -35,11 +37,11 @@ def create_experiment(md):
     exp['task'] = extract_text(md.find('h2', text='Task').find_next('p'))
     exp['author'] = extract_text(md.find('h2', text='Author').find_next('p'))
 
+    exp['data_generated'] = []
     rows = md.find('h3', text='Data generated')\
              .find_next_sibling('table')\
              .select_one('tbody')\
              .select('tr')
-    exp['data_generated'] = []
     for row in rows:
         try:
             path, comment = row.select('td')
@@ -53,10 +55,9 @@ def create_experiment(md):
         except ValueError:
             continue
 
-    rows = md.find('h3', text='Data taken')\
-             .find_next_sibling('ul')\
-             .find_all('li')
-    exp['data_taken'] = [row.text for row in rows]
+    exp['data_taken'] = [row.text for row in md.find('h3', text='Data taken')\
+                                               .find_next_sibling('ul')\
+                                               .find_all('li')]
 
     exp['log'] = []
     for log_record in md.find('h2', text='Log').find_next_siblings('p'):
@@ -73,7 +74,7 @@ def to_dt(s):
               '%d.%m.%Y, %H:%M',
               '%d.%m.%Y %H:%M']:
         try:
-            return datetime.strptime(s, '%d.%m.%y, %H:%M').timestamp()
+            return datetime.strptime(s, p).timestamp()
         except:
             continue
     return datetime.now().timestamp()
@@ -119,9 +120,6 @@ def fill_data(total, exps):
                 'used_in': [exp_name]
             }
             path = p['path']
-
-            print('PATH: ', path)
-
             if path.startswith('/'):
                 path = path[1:]
             ps = path.split('/')
@@ -138,6 +136,7 @@ def fill_data(total, exps):
                     data[key].append(item)
                 else:
                     data[key] = [item]
+
         for p in e['data_taken']:
             if p.startswith('/'):
                 p = p[1:]
