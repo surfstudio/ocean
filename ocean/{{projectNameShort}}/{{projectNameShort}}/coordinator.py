@@ -1,6 +1,7 @@
 from .persistence import load, save
 
 import glob
+import json
 import os
 import re
 import yaml
@@ -69,6 +70,8 @@ class Path:
             return yaml.load(open(self.path)) 
         if self.path.endswith('csv'):
             return pd.read_csv(self.path, *args, **kwargs)
+        if self.path.endswith('json'):
+            return json.load(open(self.path))
         # treat as pickle object
         return load(self.path)
 
@@ -80,7 +83,7 @@ class Path:
             p = glob.glob(os.path.join(self.path, '**'), recursive=True)
         else:
             p = glob.glob(os.path.join(self.path, '*'), recursive=False)
-        return sorted([x for x in p if not os.path.isdir(x)])
+        return sorted([x for x in p if not os.path.isdir(x)], key=lambda s: s.lower())
 
     @property
     def exists(self):
