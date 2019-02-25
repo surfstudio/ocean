@@ -1,6 +1,7 @@
+from distutils.dir_util import copy_tree
+from .docs_index_generator import make_doc_index
 from jinja2 import Template
 from glob import glob
-from distutils.dir_util import copy_tree
 
 import janus
 import os
@@ -9,40 +10,115 @@ import shutil
 
 
 def parse():
-    p = janus.ArgParser()
-    p.new_str('n name')
-    p.new_str('v version', fallback='0.0.1')
-    p.new_str('a author', fallback='Surf')
-    p.new_str('l licence', fallback='MIT')
-    p.new_str('d description', fallback='')
-    p.new_str('p path', fallback='.')
-    p.parse()
+    parser = janus.ArgParser()
 
-    commands = p.get_args()
-    assert len(commands) == 1, ('Please provide exactly one command. '
-                           'The available commands are "new_ml" and "new_dl".')
+    project_parser = parser.new_cmd('project', 
+                                    'Project command', 
+                                     project_command)
 
-    command = commands[0]
-    assert command == 'new', 'Use "ocean new -n <PROJECT_NAME>" to create one'
+    new_project_parser = project_parser.new_cmd('create', 
+                                                'Creates new project', 
+                                                 project_new_command)
+    new_project_parser.new_str('n name')
+    new_project_parser.new_str('v version', fallback='0.0.1')
+    new_project_parser.new_str('a author', fallback='Surf')
+    new_project_parser.new_str('l licence', fallback='MIT')
+    new_project_parser.new_str('d description', fallback='')
+    new_project_parser.new_str('p path', fallback='.')
 
+    experiment_parser = parser.new_cmd('exp', 
+                                       'Experiment command', 
+                                        experiment_command)
+
+    new_exp_parser = experiment_parser.new_cmd('create', 
+                                               'Creates new experiment', 
+                                                new_experiment_command)
+    new_exp_parser.new_str('n name')
+    new_exp_parser.new_str('a author')
+    new_exp_parser.new_str('t task', fallback='')
+
+    list_exp_parser = experiment_parser.new_cmd('list', 
+                                                'List all experiments', 
+                                                 new_experiment_command)
+    
+    log_parser = parser.new_cmd('log', 
+                                'Log command', 
+                                 log_command)
+
+    new_log_parser = log_parser.new_cmd('create', 
+                                        'Creates new project log', 
+                                         create_log_command)
+
+    new_log_parser = log_parser.new_cmd('archive', 
+                                        'Archives log', 
+                                         arch_log_command)
+    parser.parse()
+
+# ===================================================================== 
+
+def project_command(p):
+    if p.has_cmd():
+        return
+    print('PROJECT COMMAND HELP')
+    print('Usage:')
+    print(' > ocean project create ...')
+    print('       -n --name        : Project name like "Cute kittens". Must be provided.')
+    print('       -v --version     : Version. Default: "0.0.1".')
+    print('       -a --author      : Author. Default: "Surf".')
+    print('       -l --licence     : License. Default: "MIT".')
+    print('       -d --description : Description. Default: "".')
+    print('       -p --path        : Path. Default: ".", which is the current directory.')
+
+def project_new_command(p):
     name = p['name']
-    assert not name[0].isdigit(), ('The project name should not start '
-                                   'with a numeric character.')
-
     version = p['version']
     author = p['author']
     licence = p['licence']
     description = p['description']
     path = os.path.abspath(p['path'])
 
-    assert len(name.strip()) > 0, 'Please provide a correct name for a project'
-
-    short_name = ''.join([x.capitalize() for x in name.split()])
+    short_name = ''.join([_capitalizeOne(w) for w in name.split()])
     short_name = short_name[0].lower() + short_name[1:]
 
     create_project(name=name, short_name=short_name, author=author,
                    description=description, version=version, licence=licence,
                    path=path)
+
+def experiment_command(p):
+    if p.has_cmd():
+        return
+    print('EXPERIMENT COMMAND HELP')
+    print('Usage:')
+    print(' > ocean exp create ... - Creates new experiment')
+    print('       -n --name   : Experiment name like "Boosting". Must be provided.')
+    print('       -a --author : Author. Must be provided')
+    print(('       -t --task   : Task of an experiment. Default: "", so '
+           'the one can specify it later on.'))
+    print(' > ocean exp list - List all experiments')
+    
+def new_experiment_command(p):
+    print('EXPERIMENT NEW')
+
+def list_experiment_command(p):
+    print('EXPERIMENT LIST')
+
+def log_command(p):
+    if p.has_cmd():
+        return
+    print('LOG COMMAND HELP')
+    print('Usage:')
+    print(' > ocean log create - Creates project log')
+    print(' > ocean log archive ... - Archives existing project log')
+    print('       -n --name     : Name of the archive like "result". Must be provided.')
+    print('       -p --password : Password. Default is "" - no password.')
+
+def create_log_command(p):
+    print('LOG CREATE')
+
+def arch_log_command(p):
+    print('LOG ARCH')
+
+# ===================================================================== 
 
 def create_project(name, short_name, author, description,
                    version, licence, path):
@@ -60,7 +136,8 @@ def create_project(name, short_name, author, description,
     _change_sphinx_config(docs_dir)
     # 7. Generate docs
     _generate_docs(root)
-    # TODO: 8. Install project package by default
+    # 8. Install project package by default
+    _install_as_package(root)
 
 def _copy_template(path, short_name):
     from_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -86,13 +163,6 @@ def _render_setup_py(root, short_name, version, description, author, licence):
                             'author': author,
                             'licence': licence
                          })
-
-def _render_file_inplace(path, replace_dict):
-    with open(path) as f:
-        template = Template(f.read())
-    s = template.render(**replace_dict)
-    with open(path, 'w') as f:
-        f.write(s)
 
 def _rename_src_folder(root, short_name):
     src_dir_from = os.path.join(root, '{{projectNameShort}}')
@@ -131,8 +201,27 @@ def _change_sphinx_config(docs_dir):
         f.write(''.join(config))
 
 def _generate_docs(root):
-    command = 'cd {0}; make -B docs >/dev/null'.format(root)
+    docs = os.path.join(root, 'docs')
+    index_rst = os.path.join(docs, 'index.rst')
+    d = os.path.dirname(os.path.abspath(__file__))
+    template = os.path.join(d, 'docsIndexTemplate.jinja')
+    make_doc_index(template_path=template, doc_index_path=index_rst)
+
+def _install_as_package(root):
+    command = 'cd {0}; make -B package >/dev/null'.format(root)
     os.system(command)
+
+# =============================================================================
+
+def _capitalizeOne(s):
+    return s[0].upper() + s[1:]
+
+def _render_file_inplace(path, replace_dict):
+    with open(path) as f:
+        template = Template(f.read())
+    s = template.render(**replace_dict)
+    with open(path, 'w') as f:
+        f.write(s)
 
 # =============================================================================
 
