@@ -1,7 +1,5 @@
 # Experiment {{expNumber}}. {{expName}}
 
-This experiment id is {{expId}}. Use it in every mlflow's run.
-
 ## Author
 
 Your name here.

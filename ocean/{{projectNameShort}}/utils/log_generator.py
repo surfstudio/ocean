@@ -77,6 +77,7 @@ def to_dt(s):
             return datetime.strptime(s, p).timestamp()
         except:
             continue
+    print('Datetime format {0} is not understood'.format(s))
     return datetime.now().timestamp()
 
 def fill_experiments(total, exps):
