@@ -171,7 +171,7 @@ def _rename_src_folder(root, short_name):
 
 def _generate_sphinx_docs(root, name, author, version):
     docs_dir = os.path.join(root, 'docs')
-    command = ('cd {0}; '
+    command = ('cd {0} && '
                'sphinx-apidoc -o . .. -FEP -H "{1}" -A "{2}" -V "{3}" '
                '>/dev/null')\
               .format(docs_dir, name, author, version)
@@ -203,9 +203,9 @@ def _change_sphinx_config(docs_dir):
 def _generate_docs(root):
     docs = os.path.join(root, 'docs')
     index_rst = os.path.join(docs, 'index.rst')
-    d = os.path.dirname(os.path.abspath(__file__))
-    template = os.path.join(d, 'docsIndexTemplate.jinja')
-    make_doc_index(template_path=template, doc_index_path=index_rst)
+    make_doc_index(root_path=root, doc_index_path=index_rst)
+    cmd = 'cd {} && make html >/dev/null'.format(docs)
+    os.system(cmd)
 
 def _install_as_package(root):
     command = 'cd {0}; make -B package >/dev/null'.format(root)
