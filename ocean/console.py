@@ -6,6 +6,7 @@ from glob import glob
 import janus
 import os
 import re
+import sys
 import shutil
 
 
@@ -16,7 +17,7 @@ def parse():
                                     'Project command', 
                                      project_command)
 
-    new_project_parser = project_parser.new_cmd('create', 
+    new_project_parser = project_parser.new_cmd('new', 
                                                 'Creates new project', 
                                                  project_new_command)
     new_project_parser.new_str('n name')
@@ -30,12 +31,13 @@ def parse():
                                        'Experiment command', 
                                         experiment_command)
 
-    new_exp_parser = experiment_parser.new_cmd('create', 
+    new_exp_parser = experiment_parser.new_cmd('new', 
                                                'Creates new experiment', 
                                                 new_experiment_command)
     new_exp_parser.new_str('n name')
     new_exp_parser.new_str('a author')
     new_exp_parser.new_str('t task', fallback='')
+    new_exp_parser.new_str('p path', fallback='.')
 
     list_exp_parser = experiment_parser.new_cmd('list', 
                                                 'List all experiments', 
@@ -45,7 +47,7 @@ def parse():
                                 'Log command', 
                                  log_command)
 
-    new_log_parser = log_parser.new_cmd('create', 
+    new_log_parser = log_parser.new_cmd('new', 
                                         'Creates new project log', 
                                          create_log_command)
 
@@ -61,7 +63,7 @@ def project_command(p):
         return
     print('PROJECT COMMAND HELP')
     print('Usage:')
-    print(' > ocean project create ...')
+    print(' > ocean project new ...')
     print('       -n --name        : Project name like "Cute kittens". Must be provided.')
     print('       -v --version     : Version. Default: "0.0.1".')
     print('       -a --author      : Author. Default: "Surf".')
@@ -89,15 +91,38 @@ def experiment_command(p):
         return
     print('EXPERIMENT COMMAND HELP')
     print('Usage:')
-    print(' > ocean exp create ... - Creates new experiment')
+    print(' > ocean exp new ... - Creates new experiment')
     print('       -n --name   : Experiment name like "Boosting". Must be provided.')
     print('       -a --author : Author. Must be provided')
     print(('       -t --task   : Task of an experiment. Default: "", so '
            'the one can specify it later on.'))
     print(' > ocean exp list - List all experiments')
-    
+
 def new_experiment_command(p):
-    print('EXPERIMENT NEW')
+    name = p['name']
+    author = p['author']
+    task = p['task']
+    path = p['path']
+    camel_name = _to_camel(name)
+
+    found, root = _find_ocean_root(path)
+    if not found:
+        print('Please specify project path via -p argument', file=sys.stderr)
+        return
+    exps = os.path.join(root, 'experiments')
+
+    exps_created = sorted(glob('../experiments/*'))
+    if len(exps_created) == 0:
+        number = 1
+    else:
+        number = max([int(x.split('-')[1]) for x in exps_created]) + 1
+    number_string = '0'*(3-len(str(number))) + str(number)
+    exp_folder_name = 'exp-{0}-{1}'.format(camel_name, number_string)
+
+    from_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
+                             'exp-{{expNumber}}-{{expName}}')
+    to_path = os.path.join(exps, exp_folder_name)
+    copy_tree(from_path, to_path)
 
 def list_experiment_command(p):
     print('EXPERIMENT LIST')
@@ -107,7 +132,7 @@ def log_command(p):
         return
     print('LOG COMMAND HELP')
     print('Usage:')
-    print(' > ocean log create - Creates project log')
+    print(' > ocean log new - Creates project log')
     print(' > ocean log archive ... - Archives existing project log')
     print('       -n --name     : Name of the archive like "result". Must be provided.')
     print('       -p --password : Password. Default is "" - no password.')
@@ -179,26 +204,29 @@ def _generate_sphinx_docs(root, name, author, version):
     return docs_dir
 
 def _change_sphinx_config(docs_dir):
-    """
-    The settings changes are taken from here
-    https://medium.com/@richyap13/a-simple-tutorial-on-how-to-document-your-\
-        python-project-using-sphinx-and-rinohtype-177c22a15b5b
-    """
+    new_config = []
+    project_name = None
+    to_find = ['import os', 'import sys', 'sys.path.insert']
+    to_append = ['import os\n', 'import sys\n', 'sys.path.insert(0, "..")\n']
     with open(os.path.join(docs_dir, 'conf.py')) as f:
         config = f.readlines()
-    lines_to_uncomment = [
-        'import os',
-        'import sys',
-        'sys.path.insert'
-    ]
-    for i, line in enumerate(config):
-        for to_uncomment in lines_to_uncomment:
-            if to_uncomment in line:
-                config[i] = line[2:]
-        if 'sys.path.insert' in line:
-            config.insert(i+1, 'sys.setrecursionlimit(1500)\n')
+        for line in config:
+            found = False
+            for i in range(len(to_find)):
+                if to_find[i] in line:
+                    found = True
+                    new_config.append(to_append[i])
+                    break
+            if not found:
+                new_config.append(line)
+            capts = re.findall(r'project\s+\=\s+\'(.+)\'', line, flags=re.I)
+            if len(capts) > 0:
+                project_name = capts[0]
+    new_config.append('autodoc_mock_imports = ["yaml", "numpy", "pandas"]\n')
+    new_config.append(('exclude_patterns = '
+                       '["setup.rst", "{0}.rst", "{0}.data.rst"]\n').format(project_name))
     with open(os.path.join(docs_dir, 'conf.py'), 'w') as f:
-        f.write(''.join(config))
+        f.write(''.join(new_config))
 
 def _generate_docs(root):
     docs = os.path.join(root, 'docs')
@@ -222,6 +250,23 @@ def _render_file_inplace(path, replace_dict):
     s = template.render(**replace_dict)
     with open(path, 'w') as f:
         f.write(s)
+
+def _find_ocean_root(path):
+    project_root = None
+    found = False
+    old_f = os.path.abspath(path)
+    f = os.path.dirname(old_f)
+    while f != old_f:
+        if os.path.exists(os.path.join(f, '.ocean')):
+            found = True
+            project_root = f
+            break
+        old_f = f
+        f = os.path.dirname(f)
+    return found, project_root
+
+def _to_camel(s):
+    return ''.join(x.capitalize() or '_' for x in s.split())
 
 # =============================================================================
 
