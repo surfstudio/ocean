@@ -39,18 +39,42 @@ def parse():
     new_exp_parser.new_str('t task', fallback='')
     new_exp_parser.new_str('p path', fallback='.')
 
+    env_parser = parser.new_cmd('env', 
+                                'Environment command', 
+                                env_command)
+
+    new_env_parser = env_parser.new_cmd('new', 
+                                        'Creates new environment', 
+                                        create_env_command)
+    new_env_parser.new_str('n name', fallback='')
+    new_env_parser.new_str('p path', fallback='.')
+    
+    show_env_parser = env_parser.new_cmd('show', 
+                                         'Shows kernels environment', 
+                                         show_env_command)
+
+    delete_env_parser = env_parser.new_cmd('delete', 
+                                         'Delete current environment', 
+                                         delete_env_command)
+    delete_env_parser.new_str('n name', fallback='')
+    delete_env_parser.new_str('p path', fallback='.')
+
+    # TODO:
     list_exp_parser = experiment_parser.new_cmd('list', 
                                                 'List all experiments', 
                                                  new_experiment_command)
     
+    # TODO:
     log_parser = parser.new_cmd('log', 
                                 'Log command', 
                                  log_command)
 
+    # TODO:
     new_log_parser = log_parser.new_cmd('new', 
                                         'Creates new project log', 
                                          create_log_command)
 
+    # TODO:
     new_log_parser = log_parser.new_cmd('archive', 
                                         'Archives log', 
                                          arch_log_command)
@@ -96,6 +120,10 @@ def experiment_command(p):
     print('       -a --author : Author. Must be provided')
     print(('       -t --task   : Task of an experiment. Default: "", so '
            'the one can specify it later on.'))
+    print(('       -p --path   : Path to the root folder, default is . (current folder). '
+                'Ocean performs search of an root folder automatically, so '
+                'you can perform this command in any nested folder.'
+               ))
     print(' > ocean exp list - List all experiments')
 
 def new_experiment_command(p):
@@ -162,6 +190,37 @@ def new_experiment_command(p):
 
 def list_experiment_command(p):
     print('EXPERIMENT LIST')
+
+def env_command(p):
+    if p.has_cmd():
+        return
+    print('ENVIRONMENT COMMAND HELP')
+    print('Usage:')
+    print(' > ocean env new - Creates new venv and relative Jupyter kernel for the experiment')
+    print(('       -n --name   : Environment name like "Doggie". '
+           'If not specified, experiment folder\'s name will be taken.'))
+    print(('       -p --path   : Path to the experiment folder, default is . (current folder). '
+                'Ocean performs search of an experiment\'s root folder automatically, so '
+                'you can perform this command in any nested folder.'
+               ))
+    print(' > ocean env show - Shows list of all environments')
+    print(' > ocean env delete - Delete current environment')
+
+def create_env_command(p):
+    name = p['name']
+    path = p['path']
+    exp_root = _find_experiment_root(path)
+    _create_kernel(exp_root, name)
+
+def show_env_command(p):
+    cmd = 'jupyter kernelspec list'
+    os.system(cmd)
+
+def delete_env_command(p):
+    name = p['name']
+    path = p['path']
+    exp_root = _find_experiment_root(path)
+    _remove_kernel(exp_root, name)
 
 def log_command(p):
     if p.has_cmd():
@@ -275,6 +334,30 @@ def _install_as_package(root):
     command = 'cd {0}; make -B package >/dev/null'.format(root)
     os.system(command)
 
+def _create_kernel(f, name=''):
+    full_foldername = os.path.abspath(f)
+    folder = full_foldername.split('/')[-1]
+    name = folder if name == '' else name
+    cmd = ('cd {0} && '
+           'python3 -m venv env && '
+           'source env/bin/activate && '
+           'pip install ipykernel && '
+           'python -m ipykernel install --user --name "{1}" --display-name "Python ({1})" && '
+           'pip install -r requirements.txt && '
+           'deactivate'
+           ).format(full_foldername, name)
+    os.system(cmd)
+
+def _remove_kernel(f, name=''):
+    full_foldername = os.path.abspath(f)
+    folder = full_foldername.split('/')[-1]
+    name = folder if name == '' else name
+    s = (
+        'jupyter kernelspec uninstall "{0}" -f && '
+        'rm -rf env'
+    ).format(name)
+    os.system(s)
+
 # =============================================================================
 
 def _capitalizeOne(s):
@@ -288,19 +371,25 @@ def _render_file_inplace(path, replace_dict):
         f.write(s)
 
 def _find_ocean_root(path):
-    project_root = None
+    return _find_root(path, '.ocean')
+
+def _find_experiment_root(path):
+    return _find_root(path, '.exp')
+
+def _find_root(path, hidden):
+    root = None
     found = False
     old_f = os.path.abspath(path)
     f = os.path.dirname(old_f)
     while f != old_f:
-        ocean_path = os.path.join(old_f, '.ocean')
-        if os.path.exists(ocean_path):
+        hidden_path = os.path.join(old_f, hidden)
+        if os.path.exists(hidden_path):
             found = True
-            project_root = old_f
+            root = old_f
             break
         old_f = f
         f = os.path.dirname(f)
-    return found, project_root
+    return found, root
 
 def _to_camel(s):
     return ''.join(x[0].upper()+x[1:] for x in s.split())
