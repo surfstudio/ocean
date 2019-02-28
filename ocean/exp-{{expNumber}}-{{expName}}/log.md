@@ -2,11 +2,11 @@
 
 ## Author
 
-Your name here.
+{{author}}
 
 ## Task
 
-Describe your task here.
+{{task}}
 
 ## Impact
 

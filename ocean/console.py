@@ -101,8 +101,20 @@ def experiment_command(p):
 def new_experiment_command(p):
     name = p['name']
     author = p['author']
+    if name is None:
+        print(('Experiment name must be provided. '
+               'Use "ocean exp new -n EXP_NAME -a AUTHOR" syntax'), 
+              file=sys.stderr)
+        return
+    if author is None:
+        print(('Author name must be provided. Use "ocean exp new '
+               '-n EXP_NAME -a AUTHOR" syntax'), 
+              file=sys.stderr)
+        return
     task = p['task']
-    path = p['path']
+    if task == '':
+        task = 'Describe your task here.'
+    path = os.path.abspath(p['path'])
     camel_name = _to_camel(name)
 
     found, root = _find_ocean_root(path)
@@ -110,19 +122,43 @@ def new_experiment_command(p):
         print('Please specify project path via -p argument', file=sys.stderr)
         return
     exps = os.path.join(root, 'experiments')
+    project_name = root.split('/')[-1]
 
-    exps_created = sorted(glob('../experiments/*'))
+    exps_created = sorted(glob(os.path.join(exps, '*')))
+
+    used_names = [x.split('-', 2)[-1] for x in exps_created]
+    if name is used_names:
+        print('Experiment name must be unique!', file=sys.stderr)
+        return
+
     if len(exps_created) == 0:
         number = 1
     else:
         number = max([int(x.split('-')[1]) for x in exps_created]) + 1
     number_string = '0'*(3-len(str(number))) + str(number)
-    exp_folder_name = 'exp-{0}-{1}'.format(camel_name, number_string)
+    exp_folder_name = 'exp-{0}-{1}'.format(number_string, camel_name)
 
     from_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-                             'exp-{{expNumber}}-{{expName}}')
+                             'exp-{{expNumber}}-{{expName}}')                             
     to_path = os.path.join(exps, exp_folder_name)
     copy_tree(from_path, to_path)
+
+    log_path = os.path.join(to_path, 'log.md')
+    with open(log_path) as f:
+        text = f.read()
+    text_rendered = Template(text).render(expNumber=number, 
+                                          expName=name,
+                                          author=author,
+                                          task=task)
+    with open(log_path, 'w') as f:
+        f.write(text_rendered)
+
+    train_path = os.path.join(to_path, 'scripts/train.py')
+    with open(train_path) as f:
+        text = f.read()
+    text_rendered = Template(text).render(projectNameShort=project_name)
+    with open(train_path, 'w') as f:
+        f.write(text_rendered)
 
 def list_experiment_command(p):
     print('EXPERIMENT LIST')
@@ -257,16 +293,17 @@ def _find_ocean_root(path):
     old_f = os.path.abspath(path)
     f = os.path.dirname(old_f)
     while f != old_f:
-        if os.path.exists(os.path.join(f, '.ocean')):
+        ocean_path = os.path.join(old_f, '.ocean')
+        if os.path.exists(ocean_path):
             found = True
-            project_root = f
+            project_root = old_f
             break
         old_f = f
         f = os.path.dirname(f)
     return found, project_root
 
 def _to_camel(s):
-    return ''.join(x.capitalize() or '_' for x in s.split())
+    return ''.join(x[0].upper()+x[1:] for x in s.split())
 
 # =============================================================================
 
