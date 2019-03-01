@@ -1,9 +1,12 @@
+from bs4 import BeautifulSoup
 from distutils.dir_util import copy_tree
 from .docs_index_generator import make_doc_index
+from .log_generator import parse_md
 from jinja2 import Template
 from glob import glob
 
 import janus
+import mistune
 import os
 import re
 import sys
@@ -13,6 +16,7 @@ import shutil
 def parse():
     parser = janus.ArgParser()
 
+    #  ===== PROJECT ===== 
     project_parser = parser.new_cmd('project', 
                                     'Project command', 
                                      project_command)
@@ -27,6 +31,7 @@ def parse():
     new_project_parser.new_str('d description', fallback='')
     new_project_parser.new_str('p path', fallback='.')
 
+    #  ===== EXPERIMENT ===== 
     experiment_parser = parser.new_cmd('exp', 
                                        'Experiment command', 
                                         experiment_command)
@@ -39,6 +44,15 @@ def parse():
     new_exp_parser.new_str('t task', fallback='')
     new_exp_parser.new_str('p path', fallback='.')
 
+    # TODO:
+    list_exp_parser = experiment_parser.new_cmd('list', 
+                                                'List all experiments', 
+                                                 list_experiments_command)
+    list_exp_parser.new_str('p path', fallback='.')
+    list_exp_parser.new_flag('a author')
+    list_exp_parser.new_flag('t task')
+
+    #  ===== ENVIRONMENTS ===== 
     env_parser = parser.new_cmd('env', 
                                 'Environment command', 
                                 env_command)
@@ -58,12 +72,8 @@ def parse():
                                          delete_env_command)
     delete_env_parser.new_str('n name', fallback='')
     delete_env_parser.new_str('p path', fallback='.')
-
-    # TODO:
-    list_exp_parser = experiment_parser.new_cmd('list', 
-                                                'List all experiments', 
-                                                 new_experiment_command)
     
+    #  ===== LOG ===== 
     # TODO:
     log_parser = parser.new_cmd('log', 
                                 'Log command', 
@@ -79,6 +89,11 @@ def parse():
                                         'Archives log', 
                                          arch_log_command)
     parser.parse()
+
+    #  ===== DOC ===== 
+    doc_parser = parser.new_cmd('docs', 
+                                'Docs command', 
+                                 doc_command)
 
 # ===================================================================== 
 
@@ -188,23 +203,58 @@ def new_experiment_command(p):
     with open(train_path, 'w') as f:
         f.write(text_rendered)
 
-def list_experiment_command(p):
-    print('EXPERIMENT LIST')
+def list_experiments_command(p):
+    path = p['path']
+    show_authors = p['author']
+    show_tasks = p['task']
+    found, root = _find_ocean_root(path)
+    if not found:
+        print('Please specify project path via -p argument', file=sys.stderr)
+        return
+    exps = os.path.join(root, 'experiments')
+    if not os.path.exists(exps):
+        print('Haven\'t found the experiments folder in project\'s root', 
+            file=sys.stderr)
+        return
+    exps = sorted(glob(os.path.join(exps, '*')))
+    results = []
+    for exp_folder in exps:
+        results.append(_parse_experiment(exp_folder, show_authors, show_tasks))
+    for item in results:
+        print(item['exp_name'])
+        if show_authors:
+            print('\tAuthor: {}'.format(item['author']))
+        if show_tasks:
+            print('\tTask: {}'.format(item['task']))
+        if show_authors or show_tasks:
+            print()
+
+def _parse_experiment(folder, show_authors, show_tasks):
+    md_path = os.path.join(folder, 'log.md')
+    md = parse_md(md_path)
+    result = {}
+    result['exp_name'] = md.select_one('h1').text
+    if show_authors:
+        result['author'] = md.find('h2', text='Author').find_next('p').text
+    if show_tasks:
+        result['task'] = md.find('h2', text='Task').find_next('p').text
+    return result
 
 def env_command(p):
     if p.has_cmd():
         return
     print('ENVIRONMENT COMMAND HELP')
     print('Usage:')
-    print(' > ocean env new - Creates new venv and relative Jupyter kernel for the experiment')
+    print(' > ocean env new ... - Creates new venv and relative Jupyter kernel for the experiment')
     print(('       -n --name   : Environment name like "Doggie". '
            'If not specified, experiment folder\'s name will be taken.'))
     print(('       -p --path   : Path to the experiment folder, default is . (current folder). '
                 'Ocean performs search of an experiment\'s root folder automatically, so '
                 'you can perform this command in any nested folder.'
                ))
-    print(' > ocean env show - Shows list of all environments')
-    print(' > ocean env delete - Delete current environment')
+    print(' > ocean env show - Shows list of all environments.')
+    print((' > ocean env delete - Delete current environment. '
+           'Additional parameters are same with `new` command'))
 
 def create_env_command(p):
     name = p['name']
@@ -221,6 +271,9 @@ def delete_env_command(p):
     path = p['path']
     exp_root = _find_experiment_root(path)
     _remove_kernel(exp_root, name)
+
+def doc_command(p):
+    print('DOCS')
 
 def log_command(p):
     if p.has_cmd():
