@@ -74,7 +74,6 @@ def parse():
     delete_env_parser.new_str('p path', fallback='.')
     
     #  ===== LOG ===== 
-    # TODO:
     log_parser = parser.new_cmd('log', 
                                 'Log command', 
                                  log_command)
@@ -83,18 +82,23 @@ def parse():
     new_log_parser = log_parser.new_cmd('new', 
                                         'Creates new project log', 
                                          create_log_command)
+    new_log_parser.new_str('p path', fallback='.')
 
     # TODO:
-    new_log_parser = log_parser.new_cmd('archive', 
-                                        'Archives log', 
-                                         arch_log_command)
-    parser.parse()
+    archive_log_parser = log_parser.new_cmd('archive', 
+                                            'Archives log', 
+                                             arch_log_command)
+    archive_log_parser.new_str('p path', fallback='.')
 
     #  ===== DOC ===== 
     doc_parser = parser.new_cmd('docs', 
                                 'Docs command', 
                                  doc_command)
+    doc_parser.new_str('p path', fallback='.')
 
+    # # # END # # #
+    parser.parse()
+    
 # ===================================================================== 
 
 def project_command(p):
@@ -143,27 +147,28 @@ def experiment_command(p):
 
 def new_experiment_command(p):
     name = p['name']
-    author = p['author']
     if name is None:
         print(('Experiment name must be provided. '
                'Use "ocean exp new -n EXP_NAME -a AUTHOR" syntax'), 
               file=sys.stderr)
         return
+    camel_name = _to_camel(name)
+    
+    author = p['author']
     if author is None:
         print(('Author name must be provided. Use "ocean exp new '
                '-n EXP_NAME -a AUTHOR" syntax'), 
               file=sys.stderr)
         return
+
     task = p['task']
     if task == '':
         task = 'Describe your task here.'
-    path = os.path.abspath(p['path'])
-    camel_name = _to_camel(name)
-
-    found, root = _find_ocean_root(path)
-    if not found:
-        print('Please specify project path via -p argument', file=sys.stderr)
+    
+    root = _sanitize_project_path(p)
+    if not root:
         return
+
     exps = os.path.join(root, 'experiments')
     project_name = root.split('/')[-1]
 
@@ -204,13 +209,12 @@ def new_experiment_command(p):
         f.write(text_rendered)
 
 def list_experiments_command(p):
-    path = p['path']
+    root = _sanitize_project_path(p)
+    if not root:
+        return
     show_authors = p['author']
     show_tasks = p['task']
-    found, root = _find_ocean_root(path)
-    if not found:
-        print('Please specify project path via -p argument', file=sys.stderr)
-        return
+
     exps = os.path.join(root, 'experiments')
     if not os.path.exists(exps):
         print('Haven\'t found the experiments folder in project\'s root', 
@@ -258,10 +262,8 @@ def env_command(p):
 
 def create_env_command(p):
     name = p['name']
-    path = p['path']
-    found, exp_root = _find_experiment_root(path)
-    if not found:
-        print('Please specify project path via -p argument', file=sys.stderr)
+    exp_root = _sanitize_exp_path(p)
+    if not exp_root:
         return
     _create_kernel(exp_root, name)
 
@@ -271,15 +273,16 @@ def show_env_command(p):
 
 def delete_env_command(p):
     name = p['name']
-    path = p['path']
-    found, exp_root = _find_experiment_root(path)
-    if not found:
-        print('Please specify project path via -p argument', file=sys.stderr)
+    exp_root = _sanitize_exp_path(p)
+    if not exp_root:
         return
     _remove_kernel(exp_root, name)
 
 def doc_command(p):
-    print('DOCS')
+    root = _sanitize_project_path(p)
+    if not root:
+        return
+    _generate_docs(root)
 
 def log_command(p):
     if p.has_cmd():
@@ -292,10 +295,14 @@ def log_command(p):
     print('       -p --password : Password. Default is "" - no password.')
 
 def create_log_command(p):
-    print('LOG CREATE')
+    root = _sanitize_project_path(p)
+    if root is None:
+        return
 
 def arch_log_command(p):
-    print('LOG ARCH')
+    root = _sanitize_project_path(p)
+    if root is None:
+        return
 
 # ===================================================================== 
 
@@ -413,7 +420,7 @@ def _create_kernel(f, name=''):
            'pip install ipykernel && '
            'python -m ipykernel install --user --name "{1}" --display-name "Python ({1})" && '
            'pip install -r requirements.txt && '
-           'deactivate >/dev/null'
+           'deactivate'
            ).format(full_foldername, name)
     os.system(cmd)
 
@@ -421,7 +428,7 @@ def _remove_kernel(f, name=''):
     name, _ = _name_for_the_kernel(f, name)
     s = (
         'jupyter kernelspec uninstall "{0}" -f && '
-        'rm -rf env >/dev/null'
+        'rm -rf env'
     ).format(name.lower())
     os.system(s)
 
@@ -460,6 +467,21 @@ def _find_root(path, hidden):
 
 def _to_camel(s):
     return ''.join(x[0].upper()+x[1:] for x in s.split())
+
+def _sanitize_project_path(p):
+    path = p['path']
+    found, root = _find_ocean_root(path)
+    if not found:
+        print('Please specify project path via -p argument', file=sys.stderr)
+        return
+    return root
+
+def _sanitize_exp_path(p):
+    found, exp_root = _find_experiment_root(p['path'])
+    if not found:
+        print('Please specify project path via -p argument', file=sys.stderr)
+        return
+    return exp_root
 
 # =============================================================================
 
