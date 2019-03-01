@@ -63,7 +63,7 @@ def parse():
     new_env_parser.new_str('n name', fallback='')
     new_env_parser.new_str('p path', fallback='.')
     
-    show_env_parser = env_parser.new_cmd('show', 
+    show_env_parser = env_parser.new_cmd('list', 
                                          'Shows kernels environment', 
                                          show_env_command)
 
@@ -259,7 +259,10 @@ def env_command(p):
 def create_env_command(p):
     name = p['name']
     path = p['path']
-    exp_root = _find_experiment_root(path)
+    found, exp_root = _find_experiment_root(path)
+    if not found:
+        print('Please specify project path via -p argument', file=sys.stderr)
+        return
     _create_kernel(exp_root, name)
 
 def show_env_command(p):
@@ -269,7 +272,10 @@ def show_env_command(p):
 def delete_env_command(p):
     name = p['name']
     path = p['path']
-    exp_root = _find_experiment_root(path)
+    found, exp_root = _find_experiment_root(path)
+    if not found:
+        print('Please specify project path via -p argument', file=sys.stderr)
+        return
     _remove_kernel(exp_root, name)
 
 def doc_command(p):
@@ -387,28 +393,36 @@ def _install_as_package(root):
     command = 'cd {0}; make -B package >/dev/null'.format(root)
     os.system(command)
 
-def _create_kernel(f, name=''):
-    full_foldername = os.path.abspath(f)
+def _name_for_the_kernel(path, name):
+    full_foldername = os.path.abspath(path)
+    found, root_path = _find_ocean_root(full_foldername)
+    if found:
+        prefix = '{}_'.format(root_path.split('/')[-1])
+    else:
+        prefix = ''
     folder = full_foldername.split('/')[-1]
     name = folder if name == '' else name
+    name = prefix + name
+    return name, full_foldername
+
+def _create_kernel(f, name=''):
+    name, full_foldername = _name_for_the_kernel(f, name)
     cmd = ('cd {0} && '
            'python3 -m venv env && '
            'source env/bin/activate && '
            'pip install ipykernel && '
            'python -m ipykernel install --user --name "{1}" --display-name "Python ({1})" && '
            'pip install -r requirements.txt && '
-           'deactivate'
+           'deactivate >/dev/null'
            ).format(full_foldername, name)
     os.system(cmd)
 
 def _remove_kernel(f, name=''):
-    full_foldername = os.path.abspath(f)
-    folder = full_foldername.split('/')[-1]
-    name = folder if name == '' else name
+    name, _ = _name_for_the_kernel(f, name)
     s = (
         'jupyter kernelspec uninstall "{0}" -f && '
-        'rm -rf env'
-    ).format(name)
+        'rm -rf env >/dev/null'
+    ).format(name.lower())
     os.system(s)
 
 # =============================================================================
