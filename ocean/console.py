@@ -1,7 +1,8 @@
+from .docs_index_generator import make_doc_index
+from .log_generator import parse_md, generate_log
+
 from bs4 import BeautifulSoup
 from distutils.dir_util import copy_tree
-from .docs_index_generator import make_doc_index
-from .log_generator import parse_md
 from jinja2 import Template
 from glob import glob
 
@@ -44,7 +45,6 @@ def parse():
     new_exp_parser.new_str('t task', fallback='')
     new_exp_parser.new_str('p path', fallback='.')
 
-    # TODO:
     list_exp_parser = experiment_parser.new_cmd('list', 
                                                 'List all experiments', 
                                                  list_experiments_command)
@@ -63,9 +63,9 @@ def parse():
     new_env_parser.new_str('n name', fallback='')
     new_env_parser.new_str('p path', fallback='.')
     
-    show_env_parser = env_parser.new_cmd('list', 
-                                         'Shows kernels environment', 
-                                         show_env_command)
+    env_parser.new_cmd('list', 
+                       'Shows kernels environment', 
+                       show_env_command)
 
     delete_env_parser = env_parser.new_cmd('delete', 
                                          'Delete current environment', 
@@ -78,17 +78,17 @@ def parse():
                                 'Log command', 
                                  log_command)
 
-    # TODO:
     new_log_parser = log_parser.new_cmd('new', 
                                         'Creates new project log', 
                                          create_log_command)
     new_log_parser.new_str('p path', fallback='.')
 
-    # TODO:
     archive_log_parser = log_parser.new_cmd('archive', 
                                             'Archives log', 
                                              arch_log_command)
+    archive_log_parser.new_str('n name', fallback='')
     archive_log_parser.new_str('p path', fallback='.')
+    archive_log_parser.new_str('w password', fallback='')
 
     #  ===== DOC ===== 
     doc_parser = parser.new_cmd('docs', 
@@ -298,11 +298,25 @@ def create_log_command(p):
     root = _sanitize_project_path(p)
     if root is None:
         return
+    generate_log(root)
 
 def arch_log_command(p):
     root = _sanitize_project_path(p)
     if root is None:
         return
+    password = p['password']
+    name = p['name']
+    cmds = ['zip']
+    if password != '':
+        cmds.append('-P {}'.format(password))
+    if name != '':
+        cmds.append('-r {}.zip'.format(name))
+    else:
+        cmds.append('-r {}.zip'.format(root.split('/')[-1]))
+    cmds.append(os.path.join(root, 'project_log'))
+    cmd = ' '.join(cmds)
+    print(cmd)
+    os.system(cmd)
 
 # ===================================================================== 
 

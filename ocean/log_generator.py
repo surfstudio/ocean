@@ -187,14 +187,16 @@ def generate_html_notebooks(md, np, html_path):
                     s = '/'.join(['html', name.replace('ipynb', 'html')])
                     a.attrs['href'] = s
 
-if __name__ == '__main__':
-    utils_folder = os.path.dirname(os.path.abspath(__file__))
-    template_folder = os.path.join(utils_folder, 'project_log')
-    root_folder = os.path.dirname(utils_folder)
+def generate_log(root_folder):
+    package_folder = os.path.dirname(os.path.abspath(__file__))
+    template_folder = os.path.join(package_folder, 'project_log')
+    print(template_folder)
+    
     log_folder = os.path.join(root_folder, 'project_log')
-    html_log_folder = os.path.join(log_folder, 'html')
-    exp_folder = os.path.join(root_folder, 'experiments/')
     html_path = os.path.join(log_folder, 'project_log.html')
+    html_log_folder = os.path.join(log_folder, 'html')
+    
+    exp_folder = os.path.join(root_folder, 'experiments')
     readme_path = os.path.join(root_folder, 'README.md')
 
     if os.path.exists(log_folder):
@@ -210,7 +212,7 @@ if __name__ == '__main__':
         'hints': HINTS
     }
 
-    ps = sorted(glob(exp_folder + '*/*.md'))
+    ps = sorted(glob(os.path.join(exp_folder, '*/*.md')))
     if len(ps) == 0:
         print('No logs were found')
     else:
