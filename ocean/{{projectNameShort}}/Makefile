@@ -3,30 +3,12 @@
 help:
 	@echo "\n     USAGE"
 	@echo "===============\n"
-	# @echo "make -B all"
-	# @echo "       Build documentation and then install package to pip\n"
-	# @echo "make -B docs"
-	# @echo "       Build documentation for the project\n"
+	@echo "make -B all"
+	@echo "       Build documentation and then install package to pip\n"
 	@echo "make -B project"
 	@echo "       Install src/-codebase to the pip\n"
-	# @echo "make -B experiment NAME=<EXP_NAME>\n"
-	# @echo "       Creates new experiment in the folder `experiments`\n"
-	# @echo "make -B log \n"
-	# @echo "       Creates project log and adds it to zip archive\n"
 
-# all: package docs log
-
-# docs:
-# 	@cd utils/ && \
-# 	python3 docs_index_generator.py --template docsIndexTemplate.jinja --save ../docs/index.rst && \
-# 	cd ../docs/ && \
-# 	$(MAKE) html
+all: package
 
 package:
 	@python3 -m pip install --upgrade .
-
-# experiment:
-# 	@cd utils/ && python3 experiment_creator.py -n $(NAME)
-
-# log:
-# 	@python3 utils/log_generator.py && zip -r project_log.zip project_log >>/dev/null
