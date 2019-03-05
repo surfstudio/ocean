@@ -1,4 +1,4 @@
 recursive-include ocean/{{projectNameShort}} *
 recursive-include ocean/exp-{{expNumber}}-{{expName}} *
 recursive-include ocean/project_log *
-recursive-include ocean/docsIndexTemplate.jinja
+recursive-include ocean/docs *

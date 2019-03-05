@@ -8,7 +8,7 @@ import re
 
 
 def make_doc_index(root_path: str, doc_index_path: str):
-    d = os.path.dirname(os.path.abspath(__file__))
+    d = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'docs')
     template = os.path.join(d, 'docsIndexTemplate.jinja')
     with open(template) as f:
         template = Template(f.read())
