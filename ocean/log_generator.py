@@ -3,6 +3,7 @@ from datetime import datetime
 from glob import glob
 from jinja2 import Template
 
+import bs4
 import json
 import mistune
 import os
@@ -31,41 +32,102 @@ def extract_text(t):
         return t
     return ''.join([str(x) for x in t.contents])
 
+def make_re_checker(pattern):
+    def has_re(s, flags=re.I):
+        return len(re.findall(pattern, s, re.I)) > 0
+    return has_re
+
+def get_tags_in_between(tag_a, tag_b):
+    tags = []
+    for tag in tag_a.next_siblings:
+        if tag == tag_b:
+            break
+        else:
+            tags.append(tag)
+    return [x for x in tags if type(x) != bs4.element.NavigableString]
+
 def create_experiment(md):
     exp = {}
     exp['exp_name'] = extract_text(md.select_one('h1'))
     exp['task'] = extract_text(md.find('h2', text='Task').find_next('p'))
     exp['author'] = extract_text(md.find('h2', text='Author').find_next('p'))
 
+    h3_data_generated = md.find('h3', text='Data generated')
+    h3_data_taken = md.find('h3', text='Data taken')
+    h2_logs = md.find('h2', text='Log')
+    
+    tags_data_taken = get_tags_in_between(h3_data_taken, h3_data_generated)
+    tags_data_generated = get_tags_in_between(h3_data_generated, h2_logs)
+    
+    # data generated
     exp['data_generated'] = []
-    rows = md.find('h3', text='Data generated')\
-             .find_next_sibling('table')\
-             .select_one('tbody')\
-             .select('tr')
-    for row in rows:
-        try:
-            path, comment = row.select('td')
-            clear_path = extract_text(path).strip()
-            if clear_path == '':
-                continue
-            exp['data_generated'].append({
-                'path': extract_text(clear_path),
-                'comment': extract_text(comment)
-            })
-        except ValueError:
+    
+    rows = None
+    for t in tags_data_generated:
+        if t.name != 'table':
             continue
+        rows = t.select_one('tbody').select('tr')
 
-    exp['data_taken'] = [row.text for row in md.find('h3', text='Data taken')\
-                                               .find_next_sibling('ul')\
-                                               .find_all('li')]
-
+    if rows is not None:
+        for row in rows:
+            try:
+                path, comment = row.select('td')
+                clear_path = extract_text(path).strip()
+                if clear_path == '':
+                    continue
+                exp['data_generated'].append({
+                    'path': extract_text(clear_path),
+                    'comment': extract_text(comment)
+                })
+            except ValueError:
+                continue
+    
+    # data taken
+    
+    exp['data_taken'] = []
+    rows = []
+    for t in tags_data_taken:
+        if t.name != 'ul':
+            continue
+        rows = t.select('li')
+    exp['data_taken'] = [x.text for x in rows]
+    
+    # log
+    
     exp['log'] = []
-    for log_record in md.find('h2', text='Log').find_next_siblings('p'):
-        lines = extract_text(log_record).split('\n')
-        datetime = lines[0]
-        text = '\n'.join(lines[1:])
-        exp['log'].append({'datetime': datetime, 'text': text})
+    
+    records = []
+    last_record = None
+    dt_pattern = r'^(\d+\.\d+\.\d+,?\s*\d+\:\d+)'
+    has_datetime = make_re_checker(dt_pattern)
 
+    for t in h2_logs.next_siblings:
+        if type(t) == bs4.element.NavigableString:
+            continue
+        s = extract_text(t)
+        if has_datetime(s):
+            if last_record is not None:
+                records.append(last_record)
+            last_record = [t]
+        else:
+            last_record.append(t)
+
+    if len(last_record) > 0:
+        records.append(last_record)
+    
+    log = []
+    for r in records:
+        s = extract_text(r[0])
+        d = re.findall(dt_pattern, s)[0]
+        if hasattr(r[0], 'text'):
+            r[0].string = re.sub(dt_pattern+'\s+', '', r[0].text)
+        ts = to_dt(d)
+        s = '\n'.join([str(x) for x in r])
+        item = {'datetime': ts, 'text': s}
+        log.append(item)
+        
+    exp['log'] = log
+    
     return exp
 
 def to_dt(s):
