@@ -168,7 +168,7 @@ def fill_history(total, exps):
                 'author': exp['author']
             }
             records.append(item)
-    total['history'] = sorted(records, key=lambda d: to_dt(d['datetime']))
+    total['history'] = sorted(records, key=lambda d: d['datetime'])
 
 def fill_data(total, exps):
     for e in exps:
