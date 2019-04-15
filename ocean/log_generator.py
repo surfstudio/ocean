@@ -22,7 +22,7 @@ HINTS = {
 
 def parse_md(path):
     try:
-       return BeautifulSoup(mistune.Markdown()(open(path).read()), 'lxml')
+        return BeautifulSoup(mistune.Markdown()(open(path).read()), 'lxml')
     except:
         return BeautifulSoup(mistune.Markdown()(open(path).read()), 'html.parser')
 
@@ -120,7 +120,7 @@ def create_experiment(md):
         s = extract_text(r[0])
         d = re.findall(dt_pattern, s)[0]
         if hasattr(r[0], 'text'):
-            r[0].string = re.sub(dt_pattern+'\s+', '', r[0].text)
+            r[0].string = re.sub(dt_pattern + r'\s+', '', r[0].text)
         ts = to_dt(d)
         s = '\n'.join([str(x) for x in r])
         item = {'datetime': ts, 'text': s}
@@ -252,7 +252,6 @@ def generate_html_notebooks(md, np, html_path):
 def generate_log(root_folder):
     package_folder = os.path.dirname(os.path.abspath(__file__))
     template_folder = os.path.join(package_folder, 'project_log')
-    print(template_folder)
     
     log_folder = os.path.join(root_folder, 'project_log')
     html_path = os.path.join(log_folder, 'project_log.html')
@@ -296,6 +295,10 @@ def generate_log(root_folder):
         project_name = tree.select_one('h1').text
 
         s = json.dumps(total, indent=2)
+        
+        with open(os.path.join(root_folder, 'res.json'), 'w') as f:
+            json.dump(total, f)
+
         s = Template(open(html_path).read()).render(json=s,
                                                     projectName=project_name)
         with open(html_path, 'w') as f:

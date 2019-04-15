@@ -126,6 +126,7 @@ class Coordinator:
         self.docs = self.root.join('docs')
         self.notebooks = self.root.join('notebooks')
         self.references = self.root.join('references')
+        self.experiments = self.root.join('experiments')
 
     # Hooks
     @property
@@ -136,11 +137,20 @@ class Coordinator:
     def logging_config(self):
         return self.config.join('logging_config.yml').load()
 
+    def list_experiments(self):
+        exps_pattern = os.path.join(self.experiments.path, '*')
+        exps_folders = sorted(glob.glob(exps_pattern))
+        exps = [ExperimentCoordinator(x) for x in exps_folders]
+        return exps
+
 
 class ExperimentCoordinator:
     def __init__(self, path='.'):
         p = os.path.abspath(path)
         while len(re.findall(r'exp\-\d+', p.split('/')[-1])) == 0:
+            if os.path.exists(os.path.join(p, '.ocean')):
+                raise Exception(('Found project root, expected '
+                                 'experiment\'s root'))
             p = os.path.dirname(p)
         self.root = Path(p)
         self.config = self.root.join('config')
