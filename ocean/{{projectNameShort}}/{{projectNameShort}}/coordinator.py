@@ -147,7 +147,12 @@ class Coordinator:
 class ExperimentCoordinator:
     def __init__(self, path='.'):
         p = os.path.abspath(path)
+        i, max_iters = 0, 20
         while len(re.findall(r'exp\-\d+', p.split('/')[-1])) == 0:
+            i += 1
+            if i > max_iters:
+                raise Exception(('Can not find either root of '
+                'the experiment or the root of the project'))
             if os.path.exists(os.path.join(p, '.ocean')):
                 raise Exception(('Found project root, expected '
                                  'experiment\'s root'))
