@@ -249,6 +249,23 @@ def generate_html_notebooks(md, np, html_path):
                     s = '/'.join(['html', name.replace('ipynb', 'html')])
                     a.attrs['href'] = s
 
+def copy_images(md, np, image_path):
+    cmd = 'cp {0} {1}'
+    for p in md.find('h2', text='Log').find_next_siblings('p'):
+        for a in p.find_all('img'):
+            if ('src' in a.attrs) and \
+               len(re.findall(r'references/.*\.(jpg)|(jpeg)|(png)|(bmp)|(gif)', a.attrs['src'])) > 0:
+
+                    src = a.attrs['src']
+                    name = src.split('/')[-1]
+                    dest_path = os.path.join(image_path, name)
+
+                    c = cmd.format(np + '/'+ src, dest_path)
+                    os.system(c)
+
+                    s = '/'.join(['images', name])
+                    a.attrs['src'] = s
+
 def generate_log(root_folder):
     package_folder = os.path.dirname(os.path.abspath(__file__))
     template_folder = os.path.join(package_folder, 'project_log')
@@ -256,6 +273,7 @@ def generate_log(root_folder):
     log_folder = os.path.join(root_folder, 'project_log')
     html_path = os.path.join(log_folder, 'project_log.html')
     html_log_folder = os.path.join(log_folder, 'html')
+    images_log_folder = os.path.join(log_folder, 'images')
     
     exp_folder = os.path.join(root_folder, 'experiments')
     readme_path = os.path.join(root_folder, 'README.md')
@@ -284,6 +302,7 @@ def generate_log(root_folder):
 
         for md, np in zip(mds, nps):
             generate_html_notebooks(md, np, html_log_folder)
+            copy_images(md, np, images_log_folder)
 
         exps = [create_experiment(md) for md in mds]
 
