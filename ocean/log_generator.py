@@ -98,7 +98,7 @@ def create_experiment(md):
     
     records = []
     last_record = None
-    dt_pattern = r'^(\d+\.\d+\.\d+,?\s*\d+\:\d+)'
+    dt_pattern = r'(\d+\.\d+\.\d+,?\s*\d+\:\d+)'
     has_datetime = make_re_checker(dt_pattern)
 
     for t in h2_logs.next_siblings:
@@ -120,12 +120,12 @@ def create_experiment(md):
         s = extract_text(r[0])
         d = re.findall(dt_pattern, s)[0]
         if hasattr(r[0], 'text'):
-            r[0].string = re.sub(dt_pattern + r'\s+', '', r[0].text)
-        ts = to_dt(d)
+            r[0].string = re.sub(r'(<p>)?' + dt_pattern + '(</p>)?(\n)?', '', r[0].text)
+        ts = int(to_dt(d))
         s = '\n'.join([str(x) for x in r])
+        s = re.sub(r'<p></p>\n','',s)
         item = {'datetime': ts, 'text': s}
-        log.append(item)
-        
+        log.append(item)    
     exp['log'] = log
     
     return exp
