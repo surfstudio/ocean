@@ -235,8 +235,7 @@ def generate_html_notebooks(md, np, html_path):
     for p in md.find('h2', text='Log').find_next_siblings('p'):
         for a in p.find_all('a'):
             if ('href' in a.attrs) and \
-               len(re.findall(r'notebooks/.*\.ipynb', a.attrs['href'])) > 0:
-
+            len(re.findall(r'notebooks/.*\.ipynb', a.attrs['href'])) > 0:
                     href = a.attrs['href']
                     name = href.split('/')[-1]
                     if name.endswith('.ipynb'):
@@ -254,8 +253,7 @@ def copy_images(md, np, image_path):
     for p in md.find('h2', text='Log').find_next_siblings('p'):
         for a in p.find_all('img'):
             if ('src' in a.attrs) and \
-               len(re.findall(r'references/.*\.(jpg)|(jpeg)|(png)|(bmp)|(gif)', a.attrs['src'])) > 0:
-
+            len(re.findall(r'references/.*\.(jpg)|(jpeg)|(png)|(bmp)|(gif)', a.attrs['src'])) > 0:
                     src = a.attrs['src']
                     name = src.split('/')[-1]
                     dest_path = os.path.join(image_path, name)
@@ -315,9 +313,6 @@ def generate_log(root_folder):
 
         s = json.dumps(total, indent=2)
         
-        with open(os.path.join(root_folder, 'res.json'), 'w') as f:
-            json.dump(total, f)
-
         s = Template(open(html_path).read()).render(json=s,
                                                     projectName=project_name)
         with open(html_path, 'w') as f:

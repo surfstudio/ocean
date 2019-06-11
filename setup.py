@@ -5,7 +5,7 @@ setup(name='Ocean',
       description='Setup tool for a new Machine Learning projects',
       author='Alexander Olferuk, Surf',
       license='MIT',
-      install_requires=["libjanus", "Jinja2", "toolz", "mistune", "bs4"],
+      install_requires=["libjanus", "Jinja2", "toolz", "mistune", "beautifulsoup4"],
       packages=['ocean'],
       include_package_data=True,
       entry_points = { 'console_scripts': ['ocean=ocean.console:parse']}
