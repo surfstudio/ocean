@@ -30,19 +30,25 @@ pip install --upgrade .
 
 ### Использование
 
-Создание нового проекта:
+Создание нового эксперимента:
 ```
-ocean new -n "<project_name>" \    # must be provided
-          -a "<author>" \          # default is `Surf`
-          -v "<version>" \         # default is `0.0.1`
-          -d "<description>" \     # default is ``
-          -l "<licence>" \         # default is `MIT`
-          -p "<path>"              # default is `.`
+ocean project new -n "<project_name>" \    # ! обязательное значение !
+                  -a "<author>" \          # по умолчанию `Surf`
+                  -v "<version>" \         # по умолчанию `0.0.1`
+                  -d "<description>" \     # по умолчанию ``
+                  -l "<licence>" \         # по умолчанию `MIT`
+                  -p "<path>"              # по умолчанию `.`
+```
+
+Установка проекта как пакета в ваше pip-окружение:
+```
+make -B package
 ```
 
 Создание нового эксперимента в проекте:
 ```
-make -B experiment NAME="<exp_name>"
+ocean exp new -n "<exp_name>"   # ! обязательное значение !
+              -a "<author>"     # ! обязательное значение !
 ```
 
 ## История и главные особенности
