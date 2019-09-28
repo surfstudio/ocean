@@ -32,17 +32,23 @@ pip install --upgrade .
 ### Usage
 Creating a new project:
 ```
-ocean new -n "<project_name>" \    # ! must be provided !
-          -a "<author>" \          # default is `Surf`
-          -v "<version>" \         # default is `0.0.1`
-          -d "<description>" \     # default is ``
-          -l "<licence>" \         # default is `MIT`
-          -p "<path>"              # default is `.`
+ocean project new -n "<project_name>" \    # ! must be provided !
+                  -a "<author>" \          # default is `Surf`
+                  -v "<version>" \         # default is `0.0.1`
+                  -d "<description>" \     # default is ``
+                  -l "<licence>" \         # default is `MIT`
+                  -p "<path>"              # default is `.`
+```
+
+Install the project code as a package:
+```
+make -B package
 ```
 
 Creating a new experiment in the project:
 ```
-make -B experiment NAME="<exp_name>"
+ocean exp new -n "<exp_name>"   # ! must be provided !
+              -a "<author>"     # ! must be provided !
 ```
 
 ## History and main features
