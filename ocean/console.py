@@ -17,13 +17,13 @@ import shutil
 def parse():
     parser = janus.ArgParser()
 
-    #  ===== PROJECT ===== 
-    project_parser = parser.new_cmd('project', 
-                                    'Project command', 
+    #  ===== PROJECT =====
+    project_parser = parser.new_cmd('project',
+                                    'Project command',
                                      project_command)
 
-    new_project_parser = project_parser.new_cmd('new', 
-                                                'Creates new project', 
+    new_project_parser = project_parser.new_cmd('new',
+                                                'Creates new project',
                                                  project_new_command)
     new_project_parser.new_str('n name')
     new_project_parser.new_str('v version', fallback='0.0.1')
@@ -32,74 +32,74 @@ def parse():
     new_project_parser.new_str('d description', fallback='')
     new_project_parser.new_str('p path', fallback='.')
 
-    #  ===== EXPERIMENT ===== 
-    experiment_parser = parser.new_cmd('exp', 
-                                       'Experiment command', 
+    #  ===== EXPERIMENT =====
+    experiment_parser = parser.new_cmd('exp',
+                                       'Experiment command',
                                         experiment_command)
 
-    new_exp_parser = experiment_parser.new_cmd('new', 
-                                               'Creates new experiment', 
+    new_exp_parser = experiment_parser.new_cmd('new',
+                                               'Creates new experiment',
                                                 new_experiment_command)
     new_exp_parser.new_str('n name')
     new_exp_parser.new_str('a author')
     new_exp_parser.new_str('t task', fallback='')
     new_exp_parser.new_str('p path', fallback='.')
 
-    list_exp_parser = experiment_parser.new_cmd('list', 
-                                                'List all experiments', 
+    list_exp_parser = experiment_parser.new_cmd('list',
+                                                'List all experiments',
                                                  list_experiments_command)
     list_exp_parser.new_str('p path', fallback='.')
     list_exp_parser.new_flag('a author')
     list_exp_parser.new_flag('t task')
 
-    #  ===== ENVIRONMENTS ===== 
-    env_parser = parser.new_cmd('env', 
-                                'Environment command', 
+    #  ===== ENVIRONMENTS =====
+    env_parser = parser.new_cmd('env',
+                                'Environment command',
                                 env_command)
 
-    new_env_parser = env_parser.new_cmd('new', 
-                                        'Creates new environment', 
+    new_env_parser = env_parser.new_cmd('new',
+                                        'Creates new environment',
                                         create_env_command)
     new_env_parser.new_str('n name', fallback='')
     new_env_parser.new_str('p path', fallback='.')
-    
-    env_parser.new_cmd('list', 
-                       'Shows kernels environment', 
+
+    env_parser.new_cmd('list',
+                       'Shows kernels environment',
                        show_env_command)
 
-    delete_env_parser = env_parser.new_cmd('delete', 
-                                         'Delete current environment', 
+    delete_env_parser = env_parser.new_cmd('delete',
+                                         'Delete current environment',
                                          delete_env_command)
     delete_env_parser.new_str('n name', fallback='')
     delete_env_parser.new_str('p path', fallback='.')
-    
-    #  ===== LOG ===== 
-    log_parser = parser.new_cmd('log', 
-                                'Log command', 
+
+    #  ===== LOG =====
+    log_parser = parser.new_cmd('log',
+                                'Log command',
                                  log_command)
 
-    new_log_parser = log_parser.new_cmd('new', 
-                                        'Creates new project log', 
+    new_log_parser = log_parser.new_cmd('new',
+                                        'Creates new project log',
                                          create_log_command)
     new_log_parser.new_str('p path', fallback='.')
 
-    archive_log_parser = log_parser.new_cmd('archive', 
-                                            'Archives log', 
+    archive_log_parser = log_parser.new_cmd('archive',
+                                            'Archives log',
                                              arch_log_command)
     archive_log_parser.new_str('n name', fallback='')
     archive_log_parser.new_str('p path', fallback='.')
     archive_log_parser.new_str('w password', fallback='')
 
-    #  ===== DOC ===== 
-    doc_parser = parser.new_cmd('docs', 
-                                'Docs command', 
+    #  ===== DOC =====
+    doc_parser = parser.new_cmd('docs',
+                                'Docs command',
                                  doc_command)
     doc_parser.new_str('p path', fallback='.')
 
     # # # END # # #
     parser.parse()
-    
-# ===================================================================== 
+
+# =====================================================================
 
 def project_command(p):
     if p.has_cmd():
@@ -149,22 +149,22 @@ def new_experiment_command(p):
     name = p['name']
     if name is None:
         print(('Experiment name must be provided. '
-               'Use "ocean exp new -n EXP_NAME -a AUTHOR" syntax'), 
+               'Use "ocean exp new -n EXP_NAME -a AUTHOR" syntax'),
               file=sys.stderr)
         return
     camel_name = _to_camel(name)
-    
+
     author = p['author']
     if author is None:
         print(('Author name must be provided. Use "ocean exp new '
-               '-n EXP_NAME -a AUTHOR" syntax'), 
+               '-n EXP_NAME -a AUTHOR" syntax'),
               file=sys.stderr)
         return
 
     task = p['task']
     if task == '':
         task = 'Describe your task here.'
-    
+
     root = _sanitize_project_path(p)
     if not root:
         return
@@ -186,15 +186,15 @@ def new_experiment_command(p):
     number_string = '0'*(3-len(str(number))) + str(number)
     exp_folder_name = 'exp-{0}-{1}'.format(number_string, camel_name)
 
-    from_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-                             'exp-{{expNumber}}-{{expName}}')                             
+    from_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             'exp-{{expNumber}}-{{expName}}')
     to_path = os.path.join(exps, exp_folder_name)
     copy_tree(from_path, to_path)
 
     log_path = os.path.join(to_path, 'log.md')
     with open(log_path) as f:
         text = f.read()
-    text_rendered = Template(text).render(expNumber=number, 
+    text_rendered = Template(text).render(expNumber=number,
                                           expName=name,
                                           author=author,
                                           task=task)
@@ -217,7 +217,7 @@ def list_experiments_command(p):
 
     exps = os.path.join(root, 'experiments')
     if not os.path.exists(exps):
-        print('Haven\'t found the experiments folder in project\'s root', 
+        print('Haven\'t found the experiments folder in project\'s root',
             file=sys.stderr)
         return
     exps = sorted(glob(os.path.join(exps, '*')))
@@ -318,7 +318,7 @@ def arch_log_command(p):
     print(cmd)
     os.system(cmd)
 
-# ===================================================================== 
+# =====================================================================
 
 def create_project(name, short_name, author, description,
                    version, licence, path):
@@ -383,7 +383,11 @@ def _change_sphinx_config(docs_dir):
     project_name = None
     to_find = ['import os', 'import sys', 'sys.path.insert']
     to_append = ['import os\n', 'import sys\n', 'sys.path.insert(0, "..")\n']
-    with open(os.path.join(docs_dir, 'conf.py')) as f:
+    conf_file_path = os.path.join(docs_dir, 'conf.py')
+    if not os.path.exists(conf_file_path):
+        print('`sphinx apidoc` failed, check sphinx installaton')
+        return
+    with open(conf_file_path) as f:
         config = f.readlines()
         for line in config:
             found = False
@@ -406,6 +410,9 @@ def _change_sphinx_config(docs_dir):
 def _generate_docs(root):
     docs = os.path.join(root, 'docs')
     index_rst = os.path.join(docs, 'index.rst')
+    if not os.path.exists(index_rst):
+        print('`sphinx apidoc` failed, check sphinx installaton')
+        return
     make_doc_index(root_path=root, doc_index_path=index_rst)
     cmd = 'cd {} && make html >/dev/null'.format(docs)
     os.system(cmd)
